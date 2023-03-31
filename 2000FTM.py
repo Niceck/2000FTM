@@ -12,7 +12,7 @@ client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'FTMUSDT'
 interval = Client.KLINE_INTERVAL_5MINUTE
-FIXED_USDT_AMOUNT = 10
+FIXED_USDT_AMOUNT = 5
 LEVERAGE = 50
 TIME_GAP = 10
 STOP_LOSS_PERCENTAGE = 0.07
@@ -210,8 +210,8 @@ while True:
         if position:
             position_side = position['position']['positionSide']
             print(f"持仓方向：{position_side}")
-            if ((position_side == 'LONG' and (prev_close_price < ma7 or deviation < -0.2)) or
-                    (position_side == 'SHORT' and (prev_close_price > ma7 or deviation > 0.2))):
+            if ((position_side == 'LONG' and (prev_close_price < ma7 or deviation < -0.15)) or
+                    (position_side == 'SHORT' and (prev_close_price > ma7 or deviation > 0.15))):
                 close_position(symbol, position_side, prev_close_price, deviation)
                 cancel_all_orders(symbol)
         time.sleep(TIME_GAP)  # 每隔5秒执行一次
