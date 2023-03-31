@@ -205,17 +205,15 @@ while True:
             last_print_time = time.time()
             print(f"空头趋势")
         else:
-            print("等待趋势形成的开仓时机")
+            print("等待趋势开仓时机......")
         position = has_position(symbol)
         if position:
             position_side = position['position']['positionSide']
             print(f"持仓方向：{position_side}")
-            if ((position_side == 'LONG' and (prev_close_price < ma7 or deviation > 0.7 or deviation < -0.2)) or
-                    (position_side == 'SHORT' and (prev_close_price > ma7 or deviation < -0.7 or deviation > 0.2))):
+            if ((position_side == 'LONG' and (prev_close_price < ma7 or deviation < -0.2)) or
+                    (position_side == 'SHORT' and (prev_close_price > ma7 or deviation > 0.2))):
                 close_position(symbol, position_side, prev_close_price, deviation)
                 cancel_all_orders(symbol)
-            else:
-                print("趋势持续。。。。。。。。。。。。。。。。。")
         time.sleep(TIME_GAP)  # 每隔5秒执行一次
     except Exception as e:
         print("程序出现异常：", e)
