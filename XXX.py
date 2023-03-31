@@ -10,7 +10,7 @@ api_secret = '7JJ079zKEEeO6wZnSHhxDRkx81CG0AFvl7450PixmSl9UP0F3yoMlupCRJGtz5KK'
 # 初始化币安客户端
 client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
-symbol = 'FTMUSDT'
+symbol = 'XRPUSDT'
 interval = Client.KLINE_INTERVAL_5MINUTE
 FIXED_USDT_AMOUNT = 5
 LEVERAGE = 50
