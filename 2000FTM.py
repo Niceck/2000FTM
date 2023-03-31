@@ -10,12 +10,12 @@ api_secret = '7JJ079zKEEeO6wZnSHhxDRkx81CG0AFvl7450PixmSl9UP0F3yoMlupCRJGtz5KK'
 # 初始化币安客户端
 client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
-symbol = 'FTMUSDT'
-interval = Client.KLINE_INTERVAL_5MINUTE
-FIXED_USDT_AMOUNT = 20
+symbol = 'XRPUSDT'
+interval = Client.KLINE_INTERVAL_1MINUTE
+FIXED_USDT_AMOUNT = 1
 LEVERAGE = 50
 TIME_GAP = 5
-STOP_LOSS_PERCENTAGE = 0.008
+STOP_LOSS_PERCENTAGE = 0.01
 quantity = 0
 def get_latest_market_price(symbol):
     try:
@@ -62,7 +62,7 @@ def has_position(symbol):
                 return {'position': position, 'positionAmt': position_amt}
     return False
 
-def close_position(symbol, position_side):
+def close_position(symbol, position_side, prev_close_price, deviation):
     try:
         close_side = Client.SIDE_SELL if position_side == 'LONG' else Client.SIDE_BUY
         order_type = Client.FUTURE_ORDER_TYPE_MARKET
@@ -78,12 +78,13 @@ def close_position(symbol, position_side):
                     positionSide=position_side,
                     quantity=quantity,
                 )
-                print(f"平仓成功：{prev_close_price},乖离率: {deviation:.2f},##############################")
+                print(f"平仓成功：{prev_close_price},乖离率: {deviation:.2f},--------------------------------------------")
                 return True
         print("没有持仓，无需平仓")
         return False
     except Exception as e:
         print(f"平仓失败：{e}")
+
 
 
 def get_symbol_info(symbol):
@@ -143,7 +144,7 @@ def open_position(side):
             quantity=quantity,
             leverage=LEVERAGE,
         )
-        print(f"做{side}开仓成功，乖离率: {deviation:.2f}，######################################")
+        print(f"做{side}开仓成功，乖离率: {deviation:.2f}，++++++++++++++++++++++++++++++++++++++++++++++++")
 
         order_id = order['orderId']
         order_info = client.futures_get_order(symbol=symbol, orderId=order_id)
@@ -198,7 +199,7 @@ while True:
             open_position(Client.SIDE_BUY)
             last_print_time = time.time()
             print(f"多头趋势")
-        elif prev_close_price and prev_close_price < min(ma7,ma14,ma28) and latest_market_price < max(MA7,MA14,MA28) and deviation < 0.2:
+        elif prev_close_price and prev_close_price < min(ma7,ma14,ma28) and latest_market_price < max(MA7,MA14,MA28) and deviation > -0.2:
             # 当前趋势为下跌，开空头仓位
             open_position(Client.SIDE_SELL)
             last_print_time = time.time()
@@ -209,7 +210,7 @@ while True:
             print(f"持仓方向：{position_side}")
             if (position_side == 'LONG' and prev_close_price < ma7 or deviation > 0.5 or deviation < -0.2) or (
                     position_side == 'SHORT' and prev_close_price > ma7 or deviation < -0.5 or deviation > 0.2):
-                close_position(symbol, position_side)
+                close_position(symbol, position_side, prev_close_price, deviation)
                 cancel_all_orders(symbol)
             else:
                 print("趋势持续。。。。。。。。。。。。。。。。。")
