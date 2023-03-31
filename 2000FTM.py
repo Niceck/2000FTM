@@ -1,4 +1,5 @@
 import time
+import math
 from binance.client import Client
 import talib
 import numpy as np
@@ -11,13 +12,30 @@ client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'FTMUSDT'
 interval = Client.KLINE_INTERVAL_5MINUTE
-QUANTITY = 2000
+FIXED_USDT_AMOUNT = 20
 LEVERAGE = 50
 TIME_GAP = 5
-STOP_LOSS_PERCENTAGE = 0.5
-# 获取前一根K线数据
+STOP_LOSS_PERCENTAGE = 0.008
+quantity = 0
+def get_latest_market_price(symbol):
+    try:
+        ticker = client.futures_symbol_ticker(symbol=symbol)
+        return float(ticker['price'])
+    except Exception as e:
+        print(f"获取市价失败，错误信息为：{str(e)}")
+        return 0
+def get_latest_MA(timeperiod):
+    klines = client.futures_klines(symbol=symbol, interval=interval, limit=timeperiod+1)
+    close_prices = np.array([float(kline[4]) for kline in klines])
+    MA = talib.SMA(close_prices, timeperiod=timeperiod)[-1]
+    return MA
+def get_latest_MA7_and_MA14_and_MA28():
+    MA7 = get_latest_MA(timeperiod=7)
+    MA14 = get_latest_MA(timeperiod=14)
+    MA28 = get_latest_MA(timeperiod=28)
+    return MA7, MA14, MA28
 def get_previous_close_price(symbol):
-    klines = client.futures_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_5MINUTE, limit=2)
+    klines = client.futures_klines(symbol=symbol, interval=interval, limit=2)
     if len(klines) >= 2:
         previous_kline_close_price = float(klines[-2][4])
         return previous_kline_close_price
@@ -28,10 +46,11 @@ def get_previous_ma(timeperiod):
     close_prices = np.array([float(kline[4]) for kline in klines])
     ma = talib.SMA(close_prices, timeperiod=timeperiod)[-2]
     return ma
-def get_previous_ma7_and_ma28():
+def get_previous_ma7_ma14_and_ma28():
     ma7 = get_previous_ma(timeperiod=7)
+    ma14 = get_previous_ma(timeperiod=14)
     ma28 = get_previous_ma(timeperiod=28)
-    return ma7, ma28
+    return ma7, ma14, ma28
 # 检查是否持仓
 def has_position(symbol):
     positions = client.futures_position_information()
@@ -51,27 +70,55 @@ def close_position(symbol, position_side):
         positions = client.futures_position_information(symbol=symbol)
         for position in positions:
             if position['positionSide'] == position_side and float(position['positionAmt']) != 0:
+                quantity = abs(float(position['positionAmt']))  # 计算quantity
                 order = client.futures_create_order(
                     symbol=symbol,
                     side=close_side,
                     type=order_type,
                     positionSide=position_side,
-                    quantity=abs(float(position['positionAmt'])),
+                    quantity=quantity,
                 )
-                print(f"平仓成功，订单ID：{order['orderId']}")
+                print(f"平仓成功：{prev_close_price},乖离率: {deviation:.2f},##############################")
                 return True
         print("没有持仓，无需平仓")
         return False
     except Exception as e:
         print(f"平仓失败：{e}")
+
+
+def get_symbol_info(symbol):
+    try:
+        exchange_info = client.futures_exchange_info()
+        for item in exchange_info['symbols']:
+            if item['symbol'] == symbol:
+                return item
+    except Exception as e:
+        print(f"获取交易对信息失败：{str(e)}")
+        return None
+
+symbol_info = get_symbol_info(symbol)
+step_size = float(symbol_info['filters'][2]['stepSize'])
+def adjust_precision(quantity, step_size):
+    precision = int(round(-math.log(step_size, 10), 0))
+    return round(quantity, precision)
+
+def cancel_all_orders(symbol):
+    try:
+        orders = client.futures_get_open_orders(symbol=symbol)
+        for order in orders:
+            client.futures_cancel_order(symbol=symbol, orderId=order['orderId'])
+            print(f"已取消订单，订单ID：{order['orderId']}")
+        return True
+    except Exception as e:
+        print(f"取消委托单失败：{e}")
         return False
+
 
 # 开仓函数
 def open_position(side):
     try:
         position = has_position(symbol)
         if position:
-            print("已开仓")
             return False
 
         balances = client.futures_account_balance()
@@ -79,20 +126,24 @@ def open_position(side):
         for b in balances:
             if b['asset'] == 'USDT':
                 balance = float(b['balance'])
-        if balance < 20:
+        if balance < FIXED_USDT_AMOUNT:
             print("账户余额不足，无法开仓")
             return False
+        global quantity  # 声明全局变量
+        market_price = get_latest_market_price(symbol)
+        # 计算购买数量
+        quantity = FIXED_USDT_AMOUNT * LEVERAGE / market_price
+        quantity = adjust_precision(quantity, step_size)
 
         order = client.futures_create_order(
             symbol=symbol,
             side=side,
             type=Client.FUTURE_ORDER_TYPE_MARKET,
             positionSide="SHORT" if side == Client.SIDE_SELL else "LONG",
-            quantity=QUANTITY,
+            quantity=quantity,
             leverage=LEVERAGE,
         )
-        print(f"做{side}开仓成功")
-        print(f"订单参数： {order}")
+        print(f"做{side}开仓成功，乖离率: {deviation:.2f}，######################################")
 
         order_id = order['orderId']
         order_info = client.futures_get_order(symbol=symbol, orderId=order_id)
@@ -107,10 +158,10 @@ def open_position(side):
                 type=Client.FUTURE_ORDER_TYPE_STOP_MARKET,
                 positionSide="LONG" if side == Client.SIDE_BUY else "SHORT",
                 stopPrice=stop_loss_price,
-                quantity=QUANTITY,
+                quantity=quantity,
                 timeInForce="GTC",
             )
-            print(f"{side}开仓成功，止损价格为{stop_loss_price}")
+            print(f"止损价格为{stop_loss_price}")
             return {'order_id': order_id, 'stop_loss_price': stop_loss_price}
         except BinanceAPIException as e:
             print(f"创建止损单失败：{e}")
@@ -118,10 +169,6 @@ def open_position(side):
     except Exception as e:
         print(f"开仓失败：{e}")
         return False
-
-
-
-
 # 主逻辑代码
 last_print_time = 0  # 上次打印信息的时间
 while True:
@@ -137,33 +184,35 @@ while True:
             if b['asset'] == 'USDT':
                 balance = float(b['balance'])
         # 打印账户余额信息
-        print(f"当前账户USDT余额为：{balance}")
+        print(f"当前账户USDT余额为：{balance:.2f}")
         # 获取前一根K线的收盘价和MA7、MA28的值
-        ma7, ma28 = get_previous_ma7_and_ma28()
+        latest_market_price = get_latest_market_price(symbol)
+        MA7, MA14, MA28 = get_latest_MA7_and_MA14_and_MA28()
+        ma7, ma14, ma28 = get_previous_ma7_ma14_and_ma28()
         prev_close_price = get_previous_close_price(symbol)
-        print(f"收盘价: {prev_close_price}, MA7: {ma7}, MA28: {ma28}")
-        if prev_close_price and prev_close_price > max(ma7, ma28):
+        deviation = (latest_market_price - MA7) / MA7
+        deviation = deviation * 100.0
+        print(f"市价: {latest_market_price:.4f}, 乖离率: {deviation:.2f}")
+        if prev_close_price and prev_close_price > max(ma7,ma14,ma28) and latest_market_price > max(MA7,MA14,MA28) and deviation < 0.2:
             # 当前趋势为上涨，开多头仓位
             open_position(Client.SIDE_BUY)
             last_print_time = time.time()
-            print("多头趋势")
-        elif prev_close_price and prev_close_price < min(ma7, ma28):
+            print(f"多头趋势")
+        elif prev_close_price and prev_close_price < min(ma7,ma14,ma28) and latest_market_price < max(MA7,MA14,MA28) and deviation < 0.2:
             # 当前趋势为下跌，开空头仓位
             open_position(Client.SIDE_SELL)
             last_print_time = time.time()
-            print("空头趋势")
+            print(f"空头趋势")
         position = has_position(symbol)
         if position:
             position_side = position['position']['positionSide']
             print(f"持仓方向：{position_side}")
-            print(f"收盘价：{prev_close_price}, MA7: {ma7}, MA28: {ma28}")
-
-            if (position_side == 'LONG' and prev_close_price < ma7) or (
-                    position_side == 'SHORT' and prev_close_price > ma7):
+            if (position_side == 'LONG' and prev_close_price < ma7 or deviation > 0.5 or deviation < -0.2) or (
+                    position_side == 'SHORT' and prev_close_price > ma7 or deviation < -0.5 or deviation > 0.2):
                 close_position(symbol, position_side)
-                print(f"平仓成功，价格：{prev_close_price}")
+                cancel_all_orders(symbol)
             else:
-                print("暂时不满足平仓条件")
+                print("趋势持续。。。。。。。。。。。。。。。。。")
         time.sleep(TIME_GAP)  # 每隔5秒执行一次
     except Exception as e:
         print("程序出现异常：", e)
@@ -172,11 +221,3 @@ while True:
     except KeyboardInterrupt:
         print("程序被中断")
         break
-
-
-
-
-
-
-
-
