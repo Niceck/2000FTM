@@ -204,8 +204,6 @@ while True:
             open_position(Client.SIDE_SELL)
             last_print_time = time.time()
             print(f"空头趋势")
-        else:
-            print("等待趋势开仓时机......")
         position = has_position(symbol)
         if position:
             position_side = position['position']['positionSide']
