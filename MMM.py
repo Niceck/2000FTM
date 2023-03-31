@@ -14,7 +14,7 @@ symbol = 'MASKUSDT'
 interval = Client.KLINE_INTERVAL_5MINUTE
 FIXED_USDT_AMOUNT = 5
 LEVERAGE = 50
-TIME_GAP = 10
+TIME_GAP = 60
 STOP_LOSS_PERCENTAGE = 0.07
 quantity = 0
 def get_latest_market_price(symbol):
@@ -204,8 +204,6 @@ while True:
             open_position(Client.SIDE_SELL)
             last_print_time = time.time()
             print(f"空头趋势")
-        else:
-            print("等待趋势开仓时机......")
         position = has_position(symbol)
         if position:
             position_side = position['position']['positionSide']
