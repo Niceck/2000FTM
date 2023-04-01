@@ -12,9 +12,9 @@ client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'XRPUSDT'
 interval = Client.KLINE_INTERVAL_5MINUTE
-FIXED_USDT_AMOUNT = 5
+FIXED_USDT_AMOUNT = 50
 LEVERAGE = 50
-TIME_GAP = 10
+TIME_GAP = 150
 STOP_LOSS_PERCENTAGE = 0.07
 quantity = 0
 def get_latest_market_price(symbol):
