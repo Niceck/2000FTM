@@ -194,12 +194,12 @@ while True:
         deviation = (latest_market_price - MA7) / MA7
         deviation = deviation * 100.0
         print(f"市价: {latest_market_price:.4f}, 乖离率: {deviation:.2f}")
-        if prev_close_price and prev_close_price > max(ma7,ma14,ma28) and latest_market_price > max(MA7,MA14,MA28) and deviation <= 0.4:
+        if prev_close_price and prev_close_price > max(ma7,ma14,ma28) and latest_market_price > max(MA7,MA14,MA28) and deviation <= 0.5:
             # 当前趋势为上涨，开多头仓位
             open_position(Client.SIDE_BUY)
             last_print_time = time.time()
             print(f"多头趋势")
-        elif prev_close_price and prev_close_price < min(ma7,ma14,ma28) and latest_market_price < max(MA7,MA14,MA28) and deviation >= -0.4:
+        elif prev_close_price and prev_close_price < min(ma7,ma14,ma28) and latest_market_price < max(MA7,MA14,MA28) and deviation >= -0.5:
             # 当前趋势为下跌，开空头仓位
             open_position(Client.SIDE_SELL)
             last_print_time = time.time()
@@ -208,8 +208,8 @@ while True:
         if position:
             position_side = position['position']['positionSide']
             print(f"持仓方向：{position_side}")
-            if ((position_side == 'LONG' and (latest_market_price < MA7 or deviation >= 0.8 or deviation <= -0.1)) or
-                    (position_side == 'SHORT' and (latest_market_price > MA7 or deviation <= -0.8 or deviation >= 0.1))):
+            if ((position_side == 'LONG' and (latest_market_price < MA7 or deviation >= 0.95 or deviation <= -0.1)) or
+                    (position_side == 'SHORT' and (latest_market_price > MA7 or deviation <= -0.95 or deviation >= 0.1))):
                 close_position(symbol, position_side, prev_close_price, deviation)
                 cancel_all_orders(symbol)
 
