@@ -12,9 +12,9 @@ client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'XRPUSDT'
 interval = Client.KLINE_INTERVAL_5MINUTE
-FIXED_USDT_AMOUNT = 100
+FIXED_USDT_AMOUNT = 50
 LEVERAGE = 50
-TIME_GAP = 900
+TIME_GAP = 300
 STOP_LOSS_PERCENTAGE = 0.07
 quantity = 0
 def get_latest_market_price(symbol):
@@ -194,22 +194,32 @@ while True:
         deviation = (latest_market_price - MA7) / MA7
         deviation = deviation * 100.0
         print(f"市价: {latest_market_price:.4f}, 乖离率: {deviation:.2f}")
-        if prev_close_price and prev_close_price > max(ma7,ma14,ma28) and latest_market_price > max(MA7,MA14,MA28) and deviation <= 0.5:
-            # 当前趋势为上涨，开多头仓位
+        if (
+                (
+                        ma7  > ma14 > ma28 and MA7 > MA14 > MA28 and prev_close_price > ma7 and latest_market_price > MA7 and deviation <= 0.5)
+                or
+                (
+                        ma7 < ma14 < ma28 and MA7 < MA14 < MA28 and prev_close_price < ma7 and latest_market_price < MA7 and deviation <= 0.5)
+        ):
+            # 当前趋势满足条件，开多头仓位
             open_position(Client.SIDE_BUY)
             last_print_time = time.time()
             print(f"多头趋势")
-        elif prev_close_price and prev_close_price < min(ma7,ma14,ma28) and latest_market_price < max(MA7,MA14,MA28) and deviation >= -0.5:
-            # 当前趋势为下跌，开空头仓位
-            open_position(Client.SIDE_SELL)
-            last_print_time = time.time()
-            print(f"空头趋势")
+        else:
+            # 如果不满足上述条件，不做任何操作
+            pass
+
         position = has_position(symbol)
         if position:
             position_side = position['position']['positionSide']
             print(f"持仓方向：{position_side}")
-            if ((position_side == 'LONG' and (latest_market_price < MA7 or deviation >= 0.95 or deviation <= -0.1)) or
-                    (position_side == 'SHORT' and (latest_market_price > MA7 or deviation <= -0.95 or deviation >= 0.1))):
+            if (
+                    position_side == 'LONG' and
+                    (
+                            (latest_market_price < MA7 and latest_market_price < MA14 and latest_market_price < MA28) or
+                            (deviation > 1)
+                    )
+            ):
                 close_position(symbol, position_side, prev_close_price, deviation)
                 cancel_all_orders(symbol)
 
