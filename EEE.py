@@ -15,7 +15,7 @@ interval = Client.KLINE_INTERVAL_15MINUTE
 FIXED_USDT_AMOUNT = 100
 LEVERAGE = 50
 TIME_GAP = 900
-STOP_LOSS_PERCENTAGE = 0.007
+STOP_LOSS_PERCENTAGE = 0.006
 quantity = 0
 def get_latest_market_price(symbol):
     try:
@@ -208,8 +208,8 @@ while True:
         if position:
             position_side = position['position']['positionSide']
             print(f"持仓方向：{position_side}")
-            if ((position_side == 'LONG' and (latest_market_price < MA7 or deviation >= 1.2 or deviation <= -0.1)) or
-                    (position_side == 'SHORT' and (latest_market_price > MA7 or deviation <= -1.2 or deviation >= 0.1))):
+            if ((position_side == 'LONG' and (latest_market_price < MA7 or deviation >= 1 or deviation <= -0.1)) or
+                    (position_side == 'SHORT' and (latest_market_price > MA7 or deviation <= -1 or deviation >= 0.1))):
                 close_position(symbol, position_side, prev_close_price, deviation)
                 cancel_all_orders(symbol)
 
