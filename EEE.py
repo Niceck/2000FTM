@@ -13,7 +13,7 @@ client = Client(api_key=api_key, api_secret=api_secret)
 symbol = 'ETHUSDT'
 interval = Client.KLINE_INTERVAL_30MINUTE
 FIXED_USDT_AMOUNT = 100
-LEVERAGE = 50
+LEVERAGE = 100
 TIME_GAP = 1800
 STOP_LOSS_PERCENTAGE = 0.006
 quantity = 0
