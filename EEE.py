@@ -11,12 +11,20 @@ api_secret = '7JJ079zKEEeO6wZnSHhxDRkx81CG0AFvl7450PixmSl9UP0F3yoMlupCRJGtz5KK'
 client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'ETHUSDT'
-interval = Client.KLINE_INTERVAL_30MINUTE
-FIXED_USDT_AMOUNT = 100
-LEVERAGE = 100
-TIME_GAP = 1800
+interval = Client.KLINE_INTERVAL_5MINUTE
+FIXED_USDT_AMOUNT = 5
+LEVERAGE = 50
+TIME_GAP = 300
 STOP_LOSS_PERCENTAGE = 0.006
 quantity = 0
+def get_adx(period=14):
+    klines = client.futures_klines(symbol=symbol, interval=interval, limit=3*period)
+    high_prices = np.array([float(kline[2]) for kline in klines])
+    low_prices = np.array([float(kline[3]) for kline in klines])
+    close_prices = np.array([float(kline[4]) for kline in klines])
+
+    adx = talib.ADX(high_prices, low_prices, close_prices, timeperiod=period)[-1]
+    return adx
 def get_latest_market_price(symbol):
     try:
         ticker = client.futures_symbol_ticker(symbol=symbol)
@@ -59,8 +67,10 @@ def has_position(symbol):
         if position['symbol'] == symbol:
             position_amt = float(position['positionAmt'])
             if abs(position_amt) > threshold:
-                return {'position': position, 'positionAmt': position_amt}
+                pnl = float(position['unRealizedProfit'])
+                return {'position': position, 'positionAmt': position_amt, 'pnl': pnl}
     return False
+
 
 def close_position(symbol, position_side, prev_close_price, deviation):
     try:
@@ -144,7 +154,7 @@ def open_position(side):
             quantity=quantity,
             leverage=LEVERAGE,
         )
-        print(f"做{side}开仓成功，乖离率: {deviation:.2f}，++++++++++++++++++++++++++++++++++++++++++++++++")
+        print(f"做{side}开仓成功++++++++++++++++++++++++++++++++++++++++++++++++")
 
         order_id = order['orderId']
         order_info = client.futures_get_order(symbol=symbol, orderId=order_id)
@@ -186,30 +196,42 @@ while True:
                 balance = float(b['balance'])
         # 打印账户余额信息
         print(f"当前账户USDT余额为：{balance:.2f}")
-        # 获取前一根K线的收盘价和MA7、MA28的值
+        # 获取前一根K线的收盘价和MA7、MA14、MA28的值
         latest_market_price = get_latest_market_price(symbol)
         MA7, MA14, MA28 = get_latest_MA7_and_MA14_and_MA28()
         ma7, ma14, ma28 = get_previous_ma7_ma14_and_ma28()
         prev_close_price = get_previous_close_price(symbol)
         deviation = (latest_market_price - MA7) / MA7
         deviation = deviation * 100.0
-        print(f"市价: {latest_market_price:.4f}, 乖离率: {deviation:.2f}")
-        if latest_market_price > max(MA7,MA14,MA28):
+        adx = get_adx(period=14)
+        print(f"市价: {latest_market_price:.4f}, 乖离率: {deviation:.2f}，ADX: {adx:.2f}")
+        if latest_market_price > max(MA7, MA14, MA28) and deviation <= 0.5 and adx > 25:
             # 当前趋势为上涨，开多头仓位
             open_position(Client.SIDE_BUY)
             last_print_time = time.time()
             print(f"多头趋势")
-        elif latest_market_price < min(MA7,MA14,MA28):
+        elif latest_market_price < min(MA7, MA14, MA28) and deviation >= -0.5 and adx > 25:
             # 当前趋势为下跌，开空头仓位
             open_position(Client.SIDE_SELL)
             last_print_time = time.time()
             print(f"空头趋势")
+        else:
+            # 不作任何动作
+            print("当前无有效趋势")
+
         position = has_position(symbol)
         if position:
+            pnl = position['pnl']
             position_side = position['position']['positionSide']
-            print(f"持仓方向：{position_side}")
-            if ((position_side == 'LONG' and (latest_market_price < MA7 or deviation <= -0.1)) or
-                    (position_side == 'SHORT' and (latest_market_price > MA7 or deviation >= 0.1))):
+            position_amt = position['positionAmt']
+            entry_price = float(position['position']['entryPrice'])
+            total_investment = (entry_price * abs(float(position_amt))) / LEVERAGE
+            return_rate = (pnl / total_investment) * 100
+            print(f"持仓方向：{position_side}，未实现盈亏：{pnl:.2f}, 回报率：{return_rate:.2f}%")
+            if ((position_side == 'LONG' and (
+                    latest_market_price < MA7 or deviation >= 1.2 or deviation <= -0.15)) or
+                    (position_side == 'SHORT' and (
+                            latest_market_price > MA7 or deviation <= -1.2 or deviation >= 0.15))):
                 close_position(symbol, position_side, prev_close_price, deviation)
                 cancel_all_orders(symbol)
 
