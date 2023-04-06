@@ -11,7 +11,7 @@ api_secret = '7JJ079zKEEeO6wZnSHhxDRkx81CG0AFvl7450PixmSl9UP0F3yoMlupCRJGtz5KK'
 client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'DOGEUSDT'
-interval = Client.KLINE_INTERVAL_15MINUTE
+interval = Client.KLINE_INTERVAL_5MINUTE
 FIXED_USDT_AMOUNT = 5
 LEVERAGE = 50
 TIME_GAP = 300
@@ -67,8 +67,10 @@ def has_position(symbol):
         if position['symbol'] == symbol:
             position_amt = float(position['positionAmt'])
             if abs(position_amt) > threshold:
-                return {'position': position, 'positionAmt': position_amt}
+                pnl = float(position['unRealizedProfit'])
+                return {'position': position, 'positionAmt': position_amt, 'pnl': pnl}
     return False
+
 
 def close_position(symbol, position_side, prev_close_price, deviation):
     try:
@@ -152,7 +154,7 @@ def open_position(side):
             quantity=quantity,
             leverage=LEVERAGE,
         )
-        print(f"做{side}开仓成功，乖离率: {deviation:.2f}，++++++++++++++++++++++++++++++++++++++++++++++++")
+        print(f"做{side}开仓成功++++++++++++++++++++++++++++++++++++++++++++++++")
 
         order_id = order['orderId']
         order_info = client.futures_get_order(symbol=symbol, orderId=order_id)
