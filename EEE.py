@@ -184,10 +184,7 @@ def open_position(side):
 last_print_time = 0  # 上次打印信息的时间
 while True:
     try:
-        # 判断距离上次打印信息的时间是否超过5秒钟，若未超过，则继续等待
-        if time.time() - last_print_time < TIME_GAP:
-            time.sleep(1)
-            continue
+        start_time = time.time()  # 记录循环开始时的时间
         # 获取账户余额信息
         balances = client.futures_account_balance()
         balance = 0  # 初始化USDT余额为0
@@ -221,13 +218,8 @@ while True:
 
         position = has_position(symbol)
         if position:
-            pnl = position['pnl']
             position_side = position['position']['positionSide']
-            position_amt = position['positionAmt']
-            entry_price = float(position['position']['entryPrice'])
-            total_investment = (entry_price * abs(float(position_amt))) / LEVERAGE
-            return_rate = (pnl / total_investment) * 100
-            print(f"持仓方向：{position_side}，未实现盈亏：{pnl:.2f}, 回报率：{return_rate:.2f}%")
+            print(f"持仓方向：{position_side}")
             if ((position_side == 'LONG' and (
                     latest_market_price < MA7 or deviation >= 1.2 or deviation <= -0.15)) or
                     (position_side == 'SHORT' and (
@@ -235,7 +227,9 @@ while True:
                 close_position(symbol, position_side, prev_close_price, deviation)
                 cancel_all_orders(symbol)
 
-        time.sleep(TIME_GAP)  # 每隔5秒执行一次
+        elapsed_time = time.time() - start_time  # 计算循环所需的实际时间
+        sleep_time = max(TIME_GAP - elapsed_time, 0)  # 计算下一个循环的等待时间
+        time.sleep(sleep_time)  # 按照计算出的等待时间暂停
     except Exception as e:
         print("程序出现异常：", e)
         time.sleep(TIME_GAP)
