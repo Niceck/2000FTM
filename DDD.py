@@ -11,7 +11,7 @@ api_secret = '7JJ079zKEEeO6wZnSHhxDRkx81CG0AFvl7450PixmSl9UP0F3yoMlupCRJGtz5KK'
 client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'DOGEUSDT'
-interval = Client.KLINE_INTERVAL_5MINUTE
+interval = Client.KLINE_INTERVAL_15MINUTE
 FIXED_USDT_AMOUNT = 5
 LEVERAGE = 50
 TIME_GAP = 300
@@ -182,10 +182,7 @@ def open_position(side):
 last_print_time = 0  # 上次打印信息的时间
 while True:
     try:
-        # 判断距离上次打印信息的时间是否超过5秒钟，若未超过，则继续等待
-        if time.time() - last_print_time < TIME_GAP:
-            time.sleep(1)
-            continue
+        start_time = time.time()  # 记录循环开始时的时间
         # 获取账户余额信息
         balances = client.futures_account_balance()
         balance = 0  # 初始化USDT余额为0
@@ -228,7 +225,9 @@ while True:
                 close_position(symbol, position_side, prev_close_price, deviation)
                 cancel_all_orders(symbol)
 
-        time.sleep(TIME_GAP)  # 每隔5秒执行一次
+        elapsed_time = time.time() - start_time  # 计算循环所需的实际时间
+        sleep_time = max(TIME_GAP - elapsed_time, 0)  # 计算下一个循环的等待时间
+        time.sleep(sleep_time)  # 按照计算出的等待时间暂停
     except Exception as e:
         print("程序出现异常：", e)
         time.sleep(TIME_GAP)
