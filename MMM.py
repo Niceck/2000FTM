@@ -7,9 +7,6 @@ import numpy as np
 import talib
 import json
 
-# 日志设置
-logging.basicConfig(level=logging.INFO, filename='../量化/trading_bot.log', filemode='a',
-                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 全局变量定义
 api_key = "mx0vgluzuLV5p5SFck"
