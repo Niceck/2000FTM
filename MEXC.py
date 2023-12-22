@@ -17,7 +17,7 @@ api_secret = "475cb0de5d41458d86eeb801b54fea2e"
 api_base_url = "https://www.mexc.com/open/api/v2"
 symbol = "TAO_USDT"
 amount_in_usdt = 100 # 设置买入的USDT金额
-kline_interval = "5m"
+kline_interval = "30m"
 
 
 # 创建MEXC签名函数
