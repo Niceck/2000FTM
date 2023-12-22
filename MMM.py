@@ -163,11 +163,6 @@ if __name__ == "__main__":
             else:
                 print("====================")
                 order_response = None
-            if order_response:
-                print("下单API响应:", order_response)
-                logging.info(f"Order Response: {order_response}")
-            else:
-                logging.error("Failed to place order or no trade executed")
 
             # 设置循环延时，例如每5分钟检查一次
             time.sleep(5)
