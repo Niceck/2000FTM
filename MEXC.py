@@ -153,18 +153,18 @@ if __name__ == "__main__":
                 # 执行卖出操作
                 quantity = str(tao_balance)  # 卖出所有TAO余额
                 trade_type = "ASK"
-                print(f"正在执行卖出TAO操作，数量: {quantity}")
+                print(f"-----------------------: {quantity}")
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
 
             elif tao_balance <= 0 and previous_close > max(ma_values.values()):
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price, 3))  # 计算买入数量
                 trade_type = "BID"
-                print(f"正在执行买入TAO操作，数量: {quantity}")
+                print(f"+++++++++++++++++++++++: {quantity}")
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
 
             else:
-                print("不满足交易条件")
+                print("========================")
                 order_response = None
 
             if order_response:
