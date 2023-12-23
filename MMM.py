@@ -12,8 +12,8 @@ import json
 api_key = "mx0vgluzuLV5p5SFck"
 api_secret = "475cb0de5d41458d86eeb801b54fea2e"
 api_base_url = "https://www.mexc.com/open/api/v2"
-symbol = "tao_USDT"
-amount_in_usdt = 100 # 设置买入的USDT金额
+symbol = "TAO_USDT"
+amount_in_usdt = 500 # 设置买入的USDT金额
 kline_interval = "30m"
 
 
@@ -156,7 +156,7 @@ if __name__ == "__main__":
             elif tao_balance < float(round(amount_in_usdt / latest_price, 2)) and previous_close > max(
                     ma_values.values()) and ma_values[10] > ma_values[20]:
                 # 执行买入操作
-                quantity = 0.05  # 计算买入数量
+                quantity = str(round(amount_in_usdt / latest_price / 10,2))  # 计算买入数量
                 trade_type = "BID"
                 print(f"+++++++++++++++++++ {quantity}")
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
@@ -174,4 +174,3 @@ if __name__ == "__main__":
             time.sleep(60)
         except KeyboardInterrupt:
             print("程序已手动中断")
-
