@@ -165,7 +165,7 @@ if __name__ == "__main__":
                 order_response = None
 
             # 设置循环延时，例如每5分钟检查一次
-            time.sleep(5)
+            time.sleep(60)
 
         except Exception as e:
             import traceback
