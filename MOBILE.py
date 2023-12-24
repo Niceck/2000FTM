@@ -9,8 +9,8 @@ import json
 
 
 # 全局变量定义
-api_key = "mx0vgluzuLV5p5SFck"
-api_secret = "475cb0de5d41458d86eeb801b54fea2e"
+api_key = "mx0vglJrU5yVdWi4i3"
+api_secret = "f4b12641f8364b4a952e21aed19ab40c"
 api_base_url = "https://www.mexc.com/open/api/v2"
 symbol = "MOBILE_USDT"
 amount_in_usdt = 100   # 设置买入的USDT金额
