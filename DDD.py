@@ -14,7 +14,7 @@ api_secret = "f4b12641f8364b4a952e21aed19ab40c"
 api_base_url = "https://www.mexc.com/open/api/v2"
 symbol = "BNB_USDT"
 amount_in_usdt = 50   # 设置买入的USDT金额
-kline_interval = "1h"
+kline_interval = "1m"
 
 
 # 创建MEXC签名函数
@@ -165,7 +165,7 @@ if __name__ == "__main__":
                 order_response = None
 
             # 设置循环延时，例如每5分钟检查一次
-            time.sleep(60)
+            time.sleep(5)
 
         except Exception as e:
             import traceback
