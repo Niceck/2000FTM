@@ -12,7 +12,7 @@ import json
 api_key = "mx0vglJrU5yVdWi4i3"
 api_secret = "f4b12641f8364b4a952e21aed19ab40c"
 api_base_url = "https://www.mexc.com/open/api/v2"
-symbol = "BNB_USDT"
+symbol = "COM_USDT"
 amount_in_usdt = 50   # 设置买入的USDT金额
 kline_interval = "1m"
 
@@ -83,7 +83,7 @@ def get_account_balance_info():
             available = balance_info['available']
             frozen = balance_info['frozen']
             print(f"{currency}: 可用余额 = {available}, 冻结余额 = {frozen}")
-            if currency == 'BNB':
+            if currency == 'COM':
                 balance = float(available)
     else:
         print(f"获取账户余额失败：{response}")
@@ -149,7 +149,7 @@ if __name__ == "__main__":
                 # 执行卖出操作
                 quantity = str(tao_balance)  # 卖出所有TAO余额
                 trade_type = "ASK"
-                print(f"BNB---BNB----BNB {quantity}")
+                print(f"COM---COM----COM {quantity}")
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
 
 
@@ -158,10 +158,10 @@ if __name__ == "__main__":
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price / 5,3))  # 计算买入数量
                 trade_type = "BID"
-                print(f"BNB++++BNB++++BNB {quantity}")
+                print(f"COM++++COM++++COM {quantity}")
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
             else:
-                print("BNB====BNB=====BNB")
+                print("COM====COM=====COM")
                 order_response = None
 
             # 设置循环延时，例如每5分钟检查一次
