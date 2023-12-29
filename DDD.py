@@ -145,7 +145,7 @@ if __name__ == "__main__":
             print(f"MA5: {ma_values[5]:.6f}, MA10: {ma_values[10]:.6f}")
 
             # 判断是否卖出或买入
-            if tao_balance > 0 and previous_close < min(ma_values.values()):
+            if tao_balance > 0 and previous_close < min(ma_values.values()) and latest_price < min(ma_values.values()):
                 # 执行卖出操作
                 quantity = str(tao_balance)  # 卖出所有TAO余额
                 trade_type = "ASK"
@@ -153,8 +153,9 @@ if __name__ == "__main__":
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
 
 
-            elif tao_balance < float(round(amount_in_usdt / latest_price, 2)) and previous_close > max(
-                    ma_values.values()) and ma_values[5] > ma_values[10]:
+            elif tao_balance < float(round(amount_in_usdt / latest_price, 3)) and previous_close > max(
+                    ma_values.values()) and ma_values[5] > ma_values[10] and latest_price > max(
+                    ma_values.values()):
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price / 5,3))  # 计算买入数量
                 trade_type = "BID"
