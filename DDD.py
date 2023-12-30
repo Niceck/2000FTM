@@ -129,6 +129,24 @@ def place_order(symbol, price, quantity, trade_type):
     }
     return send_request("POST", "/order/place", params)
 
+def calculate_adx(symbol, interval, adx_period):
+    endpoint = f"{api_base_url}/market/kline"
+    params = {'symbol': symbol, 'interval': interval, 'limit': adx_period * 2}  # 增加获取的数据点数量
+    try:
+        response = requests.get(endpoint, params=params).json()
+        if response['code'] == 200 and len(response['data']) >= adx_period:
+            kline_data = response['data']
+            high_prices = np.array([float(kline[3]) for kline in kline_data])
+            low_prices = np.array([float(kline[4]) for kline in kline_data])
+            close_prices = np.array([float(kline[2]) for kline in kline_data])
+            adx = talib.ADX(high_prices, low_prices, close_prices, timeperiod=adx_period)
+            plus_di = talib.PLUS_DI(high_prices, low_prices, close_prices, timeperiod=adx_period)
+            minus_di = talib.MINUS_DI(high_prices, low_prices, close_prices, timeperiod=adx_period)
+            return adx[-1] if not np.isnan(adx[-1]) else None, plus_di[-1], minus_di[-1]
+        return None, None, None
+    except Exception as e:
+        print(f"计算ADX失败，错误信息为：{str(e)}")
+        return None, None, None
 
 
 
@@ -137,15 +155,16 @@ if __name__ == "__main__":
         try:
             # 获取TAO余额
             tao_balance = get_account_balance_info()
-
-            # 获取并打印市场数据
             latest_price = get_latest_market_price(symbol)
             previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10])
+            adx_value, plus_di, minus_di = calculate_adx(symbol, kline_interval, 7)  # 假设使用14个周期的ADX
+            print(f"ADX: {adx_value:.3f}, +DI: {plus_di:.3f}, -DI: {minus_di:.3f}")
             print(f"最新市价: {latest_price}，前收盘价: {previous_close}")
             print(f"MA5: {ma_values[5]:.6f}, MA10: {ma_values[10]:.6f}")
 
             # 判断是否卖出或买入
-            if tao_balance > 0 and previous_close < min(ma_values.values()) and latest_price < min(ma_values.values()):
+            if tao_balance > 0 and previous_close < min(ma_values.values()) and \
+               latest_price < min(ma_values.values()) and plus_di < minus_di:
                 # 执行卖出操作
                 quantity = str(tao_balance)  # 卖出所有TAO余额
                 trade_type = "ASK"
@@ -153,9 +172,11 @@ if __name__ == "__main__":
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
 
 
-            elif tao_balance < float(round(amount_in_usdt / latest_price, 3)) and previous_close > max(
-                    ma_values.values()) and ma_values[5] > ma_values[10] and latest_price > max(
-                    ma_values.values()):
+            elif tao_balance < float(round(amount_in_usdt / latest_price, 3)) and \
+                 previous_close > max(ma_values.values()) and \
+                 ma_values[5] > ma_values[10] and \
+                 latest_price > max(ma_values.values()) and \
+                 adx_value > 25 and plus_di > minus_di:
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price / 5,3))  # 计算买入数量
                 trade_type = "BID"
@@ -166,7 +187,7 @@ if __name__ == "__main__":
                 order_response = None
 
             # 设置循环延时，例如每5分钟检查一次
-            time.sleep(5)
+            time.sleep(8)
 
         except Exception as e:
             import traceback
