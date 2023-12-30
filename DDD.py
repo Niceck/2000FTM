@@ -175,8 +175,7 @@ if __name__ == "__main__":
             elif tao_balance < float(round(amount_in_usdt / latest_price, 3)) and \
                  previous_close > max(ma_values.values()) and \
                  ma_values[5] > ma_values[10] and \
-                 latest_price > max(ma_values.values()) and \
-                 adx_value > 25 and plus_di > minus_di:
+                 adx_value > 20 and plus_di > minus_di:
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price / 5,3))  # 计算买入数量
                 trade_type = "BID"
