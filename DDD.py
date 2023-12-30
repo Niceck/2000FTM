@@ -148,7 +148,22 @@ def calculate_adx(symbol, interval, adx_period):
         print(f"计算ADX失败，错误信息为：{str(e)}")
         return None, None, None
 
+def calculate_return_over_period(close_prices, period):
+    return (close_prices[-1] - close_prices[-1-period]) / close_prices[-1-period]
 
+def get_price_change(symbol, interval, periods):
+    endpoint = f"{api_base_url}/market/kline"
+    params = {'symbol': symbol, 'interval': interval, 'limit': max(periods) + 1}
+    try:
+        response = requests.get(endpoint, params=params).json()
+        if response['code'] == 200:
+            kline_data = response['data']
+            close_prices = np.array([float(kline[2]) for kline in kline_data])
+            return {period: calculate_return_over_period(close_prices, period) for period in periods}
+        return None
+    except Exception as e:
+        print(f"获取价格变化失败，错误信息为：{str(e)}")
+        return None
 
 if __name__ == "__main__":
     while True:
@@ -158,6 +173,9 @@ if __name__ == "__main__":
             latest_price = get_latest_market_price(symbol)
             previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10])
             adx_value, plus_di, minus_di = calculate_adx(symbol, kline_interval, 7)  # 假设使用14个周期的ADX
+            price_changes = get_price_change(symbol, kline_interval, [20, 60])
+            if price_changes is None:
+                continue
             print(f"ADX: {adx_value:.3f}, +DI: {plus_di:.3f}, -DI: {minus_di:.3f}")
             print(f"最新市价: {latest_price}，前收盘价: {previous_close}")
             print(f"MA5: {ma_values[5]:.6f}, MA10: {ma_values[10]:.6f}")
@@ -175,6 +193,7 @@ if __name__ == "__main__":
             elif tao_balance < float(round(amount_in_usdt / latest_price, 3)) and \
                  previous_close > max(ma_values.values()) and \
                  ma_values[5] > ma_values[10] and \
+                 price_changes[20] > 0 and price_changes[60] > 0 and \
                  adx_value > 20 and plus_di > minus_di:
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price / 5,3))  # 计算买入数量
