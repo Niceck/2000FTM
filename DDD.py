@@ -181,8 +181,7 @@ if __name__ == "__main__":
             print(f"MA5: {ma_values[5]:.6f}, MA10: {ma_values[10]:.6f}")
 
             # 判断是否卖出或买入
-            if tao_balance > 0 and previous_close < min(ma_values.values()) and \
-               latest_price < min(ma_values.values()) and plus_di < minus_di:
+            if tao_balance > 0 and latest_price < min(ma_values.values()) and plus_di < minus_di:
                 # 执行卖出操作
                 quantity = str(tao_balance)  # 卖出所有TAO余额
                 trade_type = "ASK"
