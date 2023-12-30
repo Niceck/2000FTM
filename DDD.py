@@ -165,8 +165,23 @@ def get_price_change(symbol, interval, periods):
         print(f"获取价格变化失败，错误信息为：{str(e)}")
         return None
 
+def get_historical_close_prices(symbol, interval, limit):
+    endpoint = f"{api_base_url}/market/kline"
+    params = {'symbol': symbol, 'interval': interval, 'limit': limit}
+    try:
+        response = requests.get(endpoint, params=params).json()
+        if response['code'] == 200:
+            kline_data = response['data']
+            return [float(kline[2]) for kline in kline_data]
+        else:
+            return []
+    except Exception as e:
+        print(f"获取历史价格失败，错误信息为：{str(e)}")
+        return []
 
 def calculate_macd(close_prices, fastperiod=12, slowperiod=26, signalperiod=9):
+    # 将输入的收盘价转换为浮点数
+    close_prices = np.array(close_prices, dtype=float)
     macd, macdsignal, macdhist = talib.MACD(close_prices, fastperiod, slowperiod, signalperiod)
     return macd, macdsignal, macdhist
 
@@ -174,14 +189,18 @@ def calculate_macd(close_prices, fastperiod=12, slowperiod=26, signalperiod=9):
 if __name__ == "__main__":
     while True:
         try:
-            # 获取TAO余额
             tao_balance = get_account_balance_info()
             latest_price = get_latest_market_price(symbol)
             previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10])
             adx_value, plus_di, minus_di = calculate_adx(symbol, kline_interval, 7)  # 假设使用14个周期的ADX
             price_changes = get_price_change(symbol, kline_interval, [20, 60])
-            _, _, macdhist = calculate_macd(np.array(close_prices))
+            # 获取历史收盘价数据
+            historical_close_prices = get_historical_close_prices(symbol, kline_interval, 100)  # 例如最近100根K线的收盘价
+            if not historical_close_prices:
+                continue
+            _, _, macdhist = calculate_macd(np.array(historical_close_prices))
             current_macd = macdhist[-1]
+
             if price_changes is None:
                 continue
             print(f"ADX: {adx_value:.3f}, +DI: {plus_di:.3f}, -DI: {minus_di:.3f}")
