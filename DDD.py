@@ -165,6 +165,12 @@ def get_price_change(symbol, interval, periods):
         print(f"获取价格变化失败，错误信息为：{str(e)}")
         return None
 
+
+def calculate_macd(close_prices, fastperiod=12, slowperiod=26, signalperiod=9):
+    macd, macdsignal, macdhist = talib.MACD(close_prices, fastperiod, slowperiod, signalperiod)
+    return macd, macdsignal, macdhist
+
+
 if __name__ == "__main__":
     while True:
         try:
@@ -174,6 +180,8 @@ if __name__ == "__main__":
             previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10])
             adx_value, plus_di, minus_di = calculate_adx(symbol, kline_interval, 7)  # 假设使用14个周期的ADX
             price_changes = get_price_change(symbol, kline_interval, [20, 60])
+            _, _, macdhist = calculate_macd(np.array(close_prices))
+            current_macd = macdhist[-1]
             if price_changes is None:
                 continue
             print(f"ADX: {adx_value:.3f}, +DI: {plus_di:.3f}, -DI: {minus_di:.3f}")
@@ -188,10 +196,9 @@ if __name__ == "__main__":
                 print(f"MX--------MX---------MX {quantity}")
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
 
-
             elif tao_balance < float(round(amount_in_usdt / latest_price, 3)) and \
                  previous_close > max(ma_values.values()) and \
-                 ma_values[5] > ma_values[10] and \
+                 ma_values[5] > ma_values[10] and current_macd > 0 and\
                  price_changes[20] > 0 and price_changes[60] > 0 and \
                  adx_value > 20 and plus_di > minus_di:
                 # 执行买入操作
