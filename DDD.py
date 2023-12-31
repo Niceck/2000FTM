@@ -191,7 +191,7 @@ if __name__ == "__main__":
         try:
             tao_balance = get_account_balance_info()
             latest_price = get_latest_market_price(symbol)
-            previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10])
+            previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10,20])
             adx_value, plus_di, minus_di = calculate_adx(symbol, kline_interval, 7)  # 假设使用14个周期的ADX
             price_changes = get_price_change(symbol, kline_interval, [20, 60])
             # 获取历史收盘价数据
@@ -205,7 +205,7 @@ if __name__ == "__main__":
                 continue
             print(f"ADX: {adx_value:.3f}, +DI: {plus_di:.3f}, -DI: {minus_di:.3f}")
             print(f"最新市价: {latest_price}，前收盘价: {previous_close}")
-            print(f"MA5: {ma_values[5]:.6f}, MA10: {ma_values[10]:.6f}")
+            print(f"MA5: {ma_values[5]:.6f}, MA10: {ma_values[10]:.6f}, MA20: {ma_values[20]:.6f}")
 
             # 判断是否卖出或买入
             if tao_balance > 0 and latest_price < min(ma_values.values()) and plus_di < minus_di:
