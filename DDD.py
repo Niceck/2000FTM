@@ -221,7 +221,7 @@ if __name__ == "__main__":
                  price_changes[20] > 0 and price_changes[60] > 0 and \
                  adx_value > 20 and plus_di > minus_di:
                 # 执行买入操作
-                quantity = str(round(amount_in_usdt / latest_price / 5,3))  # 计算买入数量
+                quantity = str(round(amount_in_usdt / latest_price - tao_balance,3))  # 计算买入数量
                 trade_type = "BID"
                 print(f"MX+++++++++MX+++++++++MX {quantity}")
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
