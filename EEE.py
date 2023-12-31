@@ -12,8 +12,8 @@ client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'ETHUSDT'
 interval = Client.KLINE_INTERVAL_1MINUTE
-FIXED_USDT_AMOUNT = 20
-LEVERAGE = 0
+FIXED_USDT_AMOUNT = 50
+LEVERAGE = 1
 STOP_LOSS_PERCENTAGE = 0.006
 quantity = 0
 
