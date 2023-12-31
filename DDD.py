@@ -13,7 +13,7 @@ api_key = "mx0vglJrU5yVdWi4i3"
 api_secret = "f4b12641f8364b4a952e21aed19ab40c"
 api_base_url = "https://www.mexc.com/open/api/v2"
 symbol = "MX_USDT"
-amount_in_usdt = 50   # 设置买入的USDT金额
+amount_in_usdt = 100   # 设置买入的USDT金额
 kline_interval = "1m"
 
 
@@ -230,7 +230,7 @@ if __name__ == "__main__":
                 order_response = None
 
             # 设置循环延时，例如每5分钟检查一次
-            time.sleep(8)
+            time.sleep(5)
 
         except Exception as e:
             import traceback
