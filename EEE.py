@@ -244,7 +244,7 @@ while True:
                 cancel_all_orders(symbol)
 
         # 设置循环延时，例如每5分钟检查一次
-        time.sleep(8)
+        time.sleep(20)
 
     except Exception as e:
         print("程序出现异常：", e)
