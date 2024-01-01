@@ -44,7 +44,7 @@ def get_technical_indicators():
     low_prices = np.array([float(kline[3]) for kline in klines])
     close_prices = np.array([float(kline[4]) for kline in klines])
 
-    adx = talib.ADX(high_prices, low_prices, close_prices, timeperiod=14)[-1]
+    adx = talib.ADX(high_prices, low_prices, close_prices, timeperiod=7)[-1]
     plus_di = talib.PLUS_DI(high_prices, low_prices, close_prices, timeperiod=14)[-1]
     minus_di = talib.MINUS_DI(high_prices, low_prices, close_prices, timeperiod=14)[-1]
     macd = talib.MACD(close_prices, fastperiod=12, slowperiod=26, signalperiod=9)[0][-1]
