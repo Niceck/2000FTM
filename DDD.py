@@ -204,8 +204,8 @@ if __name__ == "__main__":
             if price_changes is None:
                 continue
             print()
-            print(========{adx_value:.3f}, ++++++: {plus_di:.3f}, -------: {minus_di:.3f}")
-
+            print(f"OOOOOOOOOO{adx_value:.3f}, ++++++: {plus_di:.3f}, -------: {minus_di:.3f}")
+            print()
             # 判断是否卖出或买入
             if tao_balance > 0 and latest_price < min(ma_values.values()) and plus_di < minus_di:
                 # 执行卖出操作
