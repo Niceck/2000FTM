@@ -14,7 +14,7 @@ symbol = 'FTMUSDT'
 interval = Client.KLINE_INTERVAL_1MINUTE
 FIXED_USDT_AMOUNT = 100
 LEVERAGE = 20
-STOP_LOSS_PERCENTAGE = 0.01
+STOP_LOSS_PERCENTAGE = 0.015
 quantity = 0
 
 # 获取最新市场价格
@@ -79,7 +79,7 @@ def close_position(symbol, position_side):
                 positionSide=position_side,
                 quantity=quantity,
             )
-            print(f"平仓成功: {order}")
+            print("----DONE----")
             return True
         else:
             print("没有持仓，无需平仓")
@@ -202,17 +202,17 @@ while True:
     try:
         # 获取账户余额信息
         balance = get_account_balance()
-        print(f"当前账户USDT余额为：{balance:.2f}")
+        print(f"$$$$$$$$--{balance:.2f}--$$$$$$$$")
 
         # 获取市场价格和均线值
         latest_price = get_latest_market_price(symbol)
         prev_close_price = get_previous_close_price()
-        print(f"！！！！！！！: {latest_price}, ！！！！！！: {prev_close_price}")
+        print()
         price_changes = get_price_change(symbol, interval, [20, 60])
         ma5 = get_ma(5)
         ma10 = get_ma(10)
         ma20 = get_ma(20)
-        print(f"MA5: {ma5}, MA10: {ma10}, MA20: {ma20}")
+        print()
 
         # 获取技术指标
         adx, plus_di, minus_di, macd = get_technical_indicators()
