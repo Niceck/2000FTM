@@ -45,8 +45,8 @@ def get_technical_indicators():
     close_prices = np.array([float(kline[4]) for kline in klines])
 
     adx = talib.ADX(high_prices, low_prices, close_prices, timeperiod=7)[-1]
-    plus_di = talib.PLUS_DI(high_prices, low_prices, close_prices, timeperiod=14)[-1]
-    minus_di = talib.MINUS_DI(high_prices, low_prices, close_prices, timeperiod=14)[-1]
+    plus_di = talib.PLUS_DI(high_prices, low_prices, close_prices, timeperiod=7)[-1]
+    minus_di = talib.MINUS_DI(high_prices, low_prices, close_prices, timeperiod=7)[-1]
     macd = talib.MACD(close_prices, fastperiod=12, slowperiod=26, signalperiod=9)[0][-1]
     return adx, plus_di, minus_di, macd
 
@@ -207,7 +207,7 @@ while True:
         # 获取市场价格和均线值
         latest_price = get_latest_market_price(symbol)
         prev_close_price = get_previous_close_price()
-        print(f"最新市场价格: {latest_price}, 前一根K线收盘价: {prev_close_price}")
+        print(f"！！！！！！！: {latest_price}, ！！！！！！: {prev_close_price}")
         price_changes = get_price_change(symbol, interval, [20, 60])
         ma5 = get_ma(5)
         ma10 = get_ma(10)
@@ -216,7 +216,7 @@ while True:
 
         # 获取技术指标
         adx, plus_di, minus_di, macd = get_technical_indicators()
-        print(f"ADX: {adx}, +DI: {plus_di}, -DI: {minus_di}, MACD: {macd}")
+        print(f"！！！！！！！！！！: {adx}, +DI: {plus_di}, -DI: {minus_di}, MACD: {macd}")
 
         # 检查买入条件
         if not has_position(symbol) and all([
