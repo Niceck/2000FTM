@@ -216,7 +216,7 @@ while True:
 
         # 获取技术指标
         adx, plus_di, minus_di, macd = get_technical_indicators()
-        print(f"！！！！！！！！！！: {adx}, +DI: {plus_di}, -DI: {minus_di}, MACD: {macd}")
+        print(f"-FTM----FTM---FTM---{adx}, +DI: {plus_di}, -DI: {minus_di}, MACD: {macd}")
 
         # 检查买入条件
         if not has_position(symbol) and all([
