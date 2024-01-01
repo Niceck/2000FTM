@@ -203,9 +203,8 @@ if __name__ == "__main__":
 
             if price_changes is None:
                 continue
-            print(f"ADX: {adx_value:.3f}, +DI: {plus_di:.3f}, -DI: {minus_di:.3f}")
-            print(f"最新市价: {latest_price}，前收盘价: {previous_close}")
-            print(f"MA5: {ma_values[5]:.6f}, MA10: {ma_values[10]:.6f}, MA20: {ma_values[20]:.6f}")
+            print()
+            print(========{adx_value:.3f}, ++++++: {plus_di:.3f}, -------: {minus_di:.3f}")
 
             # 判断是否卖出或买入
             if tao_balance > 0 and latest_price < min(ma_values.values()) and plus_di < minus_di:
@@ -230,7 +229,7 @@ if __name__ == "__main__":
                 order_response = None
 
             # 设置循环延时，例如每5分钟检查一次
-            time.sleep(5)
+            time.sleep(15)
 
         except Exception as e:
             import traceback
