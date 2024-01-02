@@ -16,7 +16,6 @@ FIXED_USDT_AMOUNT = 20
 LEVERAGE = 1
 STOP_LOSS_PERCENTAGE = 0.015
 quantity = 0
-ATR_THRESHOLD = 0.001
 
 # 获取最新市场价格
 def get_latest_market_price(symbol):
