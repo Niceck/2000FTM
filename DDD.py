@@ -230,7 +230,7 @@ if __name__ == "__main__":
                 continue
             print(f"MX ---- {price_changes} ------")
             print(f"==={adx_value:.3f}===, ++++++ {plus_di:.3f}++++++, ------: {minus_di:.3f}----MA")
-            print(f"ATR --- {atr:.4f}--- ---")
+            print(f"ATR --- {atr_value:.4f}--- ---")
             # 判断是否卖出或买入
             if tao_balance > 0 and latest_price < min(ma_values.values()) and plus_di < minus_di:
                 # 执行卖出操作
