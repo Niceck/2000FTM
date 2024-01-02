@@ -195,7 +195,7 @@ if __name__ == "__main__":
             latest_price = get_latest_market_price(symbol)
             previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10])
             adx_value, plus_di, minus_di = calculate_adx(symbol, kline_interval, 7)  # 假设使用14个周期的ADX
-            price_changes = get_price_change(symbol, kline_interval, [5, 10])
+            price_changes = get_price_change(symbol, kline_interval, [20, 60])
             # 获取历史收盘价数据
             historical_close_prices = get_historical_close_prices(symbol, kline_interval, 100)  # 例如最近100根K线的收盘价
             if not historical_close_prices:
@@ -220,7 +220,7 @@ if __name__ == "__main__":
             elif tao_balance < float(round(amount_in_usdt / latest_price, 3)) and \
                  previous_close > max(ma_values.values()) and \
                  ma_values[5] > ma_values[10] and current_macd > 0 and\
-                 price_changes[5] > 0 and price_changes[10] > 0 and \
+                 price_changes[20] > 0 and price_changes[60] > 0 and \
                  adx_value > 20 and plus_di > minus_di:
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price - tao_balance,3))  # 计算买入数量
