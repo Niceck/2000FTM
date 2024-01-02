@@ -233,7 +233,7 @@ while True:
 
         # 检查买入条件
         if not has_position(symbol) and all([
-            prev_close_price > ma5, prev_close_price > ma10, atr > ATR_THRESHOLD
+            prev_close_price > ma5, prev_close_price > ma10, atr > ATR_THRESHOLD,
             ma5 > ma10, adx > 20, plus_di > minus_di,  price_changes[5] > 0, price_changes[10] > 0]):
             open_position(Client.SIDE_BUY)
 
