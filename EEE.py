@@ -223,7 +223,7 @@ while True:
         ma5 = get_ma(5)
         ma10 = get_ma(10)
         # 获取ATR值
-        atr = calculate_atr(5)
+        atr = get_atr(5)
         print(f"ATR======:{atr:.4f}")
 
         # 获取技术指标
