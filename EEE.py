@@ -208,10 +208,9 @@ while True:
         latest_price = get_latest_market_price(symbol)
         prev_close_price = get_previous_close_price()
         print()
-        price_changes = get_price_change(symbol, interval, [20, 60])
+        price_changes = get_price_change(symbol, interval, [5, 10])
         ma5 = get_ma(5)
         ma10 = get_ma(10)
-        ma20 = get_ma(20)
         print()
 
         # 获取技术指标
@@ -220,14 +219,14 @@ while True:
 
         # 检查买入条件
         if not has_position(symbol) and all([
-            prev_close_price > ma5, prev_close_price > ma10, prev_close_price > ma20,
-            ma5 > ma10, adx > 20, plus_di > minus_di, macd > 0, price_changes[20] > 0, price_changes[60] > 0]):
+            prev_close_price > ma5, prev_close_price > ma10,
+            ma5 > ma10, adx > 20, plus_di > minus_di, macd > 0, price_changes[5] > 0, price_changes[10] > 0]):
             open_position(Client.SIDE_BUY)
 
         # 检查卖出条件
         elif not has_position(symbol) and all([
-            prev_close_price < ma5, prev_close_price < ma10, prev_close_price < ma20,
-            ma5 < ma10, adx > 20, plus_di < minus_di, macd < 0, price_changes[20] < 0, price_changes[60] < 0]):
+            prev_close_price < ma5, prev_close_price < ma10,
+            ma5 < ma10, adx > 20, plus_di < minus_di, macd < 0, price_changes[5] < 0, price_changes[10] < 0]):
             open_position(Client.SIDE_SELL)
 
         position_info = has_position(symbol)
@@ -235,11 +234,11 @@ while True:
             position_side = position_info['positionSide']
             print(f"{position_side}")
             if position_side == 'LONG' and all(
-                    [latest_price < ma5, latest_price < ma10, latest_price < ma20, plus_di < minus_di]):
+                    [latest_price < ma5, latest_price < ma10, prev_close_price < ma5, prev_close_price < ma10, plus_di < minus_di]):
                 close_position(symbol, position_side)
                 cancel_all_orders(symbol)
             elif position_side == 'SHORT' and all(
-                    [latest_price > ma5, latest_price > ma10, latest_price > ma20, plus_di > minus_di]):
+                    [latest_price > ma5, latest_price > ma10, prev_close_price > ma5, prev_close_price > ma10, plus_di > minus_di]):
                 close_position(symbol, position_side)
                 cancel_all_orders(symbol)
 
