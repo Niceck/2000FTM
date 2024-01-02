@@ -44,7 +44,7 @@ def get_technical_indicators():
     low_prices = np.array([float(kline[3]) for kline in klines])
     close_prices = np.array([float(kline[4]) for kline in klines])
 
-    adx = talib.ADX(high_prices, low_prices, close_prices, timeperiod=7)[-1]
+    adx = talib.ADX(high_prices, low_prices, close_prices, timeperiod=5)[-1]
     plus_di = talib.PLUS_DI(high_prices, low_prices, close_prices, timeperiod=7)[-1]
     minus_di = talib.MINUS_DI(high_prices, low_prices, close_prices, timeperiod=7)[-1]
     macd = talib.MACD(close_prices, fastperiod=12, slowperiod=26, signalperiod=9)[0][-1]
@@ -208,7 +208,7 @@ while True:
         latest_price = get_latest_market_price(symbol)
         prev_close_price = get_previous_close_price()
         print()
-        price_changes = get_price_change(symbol, interval, [20, 60])
+        price_changes = get_price_change(symbol, interval, [5, 10])
         ma5 = get_ma(5)
         ma10 = get_ma(10)
         print()
@@ -220,13 +220,13 @@ while True:
         # 检查买入条件
         if not has_position(symbol) and all([
             prev_close_price > ma5, prev_close_price > ma10,
-            ma5 > ma10, adx > 20, plus_di > minus_di, macd > 0, price_changes[20] > 0, price_changes[60] > 0]):
+            ma5 > ma10, adx > 20, plus_di > minus_di,  price_changes[5] > 0, price_changes[10] > 0]):
             open_position(Client.SIDE_BUY)
 
         # 检查卖出条件
         elif not has_position(symbol) and all([
             prev_close_price < ma5, prev_close_price < ma10,
-            ma5 < ma10, adx > 20, plus_di < minus_di, macd < 0, price_changes[20] < 0, price_changes[60] < 0]):
+            ma5 < ma10, adx > 20, plus_di < minus_di, price_changes[5] < 0, price_changes[10] < 0]):
             open_position(Client.SIDE_SELL)
 
         position_info = has_position(symbol)
