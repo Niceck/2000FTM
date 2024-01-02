@@ -16,6 +16,7 @@ FIXED_USDT_AMOUNT = 20
 LEVERAGE = 1
 STOP_LOSS_PERCENTAGE = 0.015
 quantity = 0
+ATR_THRESHOLD = 0.001
 
 # 获取最新市场价格
 def get_latest_market_price(symbol):
@@ -197,6 +198,17 @@ def open_position(side):
         print(f"开仓失败：{e}")
         return False
 
+# 定义ATR计算函数
+def get_atr(period=14):
+    klines = client.futures_klines(symbol=symbol, interval=interval, limit=period+1)
+    high_prices = np.array([float(kline[2]) for kline in klines])
+    low_prices = np.array([float(kline[3]) for kline in klines])
+    close_prices = np.array([float(kline[4]) for kline in klines])
+    atr = talib.ATR(high_prices, low_prices, close_prices, timeperiod=period)[-1]
+    return atr
+
+# 定义ATR阈值
+ATR_THRESHOLD = 0.001 # 示例值，您需要根据实际情况调整
 # 主逻辑代码
 while True:
     try:
@@ -211,7 +223,9 @@ while True:
         price_changes = get_price_change(symbol, interval, [5, 10])
         ma5 = get_ma(5)
         ma10 = get_ma(10)
-        print()
+        # 获取ATR值
+        atr = calculate_atr(5)
+        print(f"ATR======:{atr:.4f}")
 
         # 获取技术指标
         adx, plus_di, minus_di, macd = get_technical_indicators()
@@ -219,13 +233,13 @@ while True:
 
         # 检查买入条件
         if not has_position(symbol) and all([
-            prev_close_price > ma5, prev_close_price > ma10,
+            prev_close_price > ma5, prev_close_price > ma10, atr > ATR_THRESHOLD
             ma5 > ma10, adx > 20, plus_di > minus_di,  price_changes[5] > 0, price_changes[10] > 0]):
             open_position(Client.SIDE_BUY)
 
         # 检查卖出条件
         elif not has_position(symbol) and all([
-            prev_close_price < ma5, prev_close_price < ma10,
+            prev_close_price < ma5, prev_close_price < ma10, atr > ATR_THRESHOLD,
             ma5 < ma10, adx > 20, plus_di < minus_di, price_changes[5] < 0, price_changes[10] < 0]):
             open_position(Client.SIDE_SELL)
 
@@ -243,7 +257,7 @@ while True:
                 cancel_all_orders(symbol)
 
         # 设置循环延时，例如每5分钟检查一次
-        time.sleep(20)
+        time.sleep(30)
 
     except Exception as e:
         print("程序出现异常：", e)
