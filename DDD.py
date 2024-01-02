@@ -228,9 +228,9 @@ if __name__ == "__main__":
 
             if price_changes is None:
                 continue
-            print()
+            print(f"MX ---- {price_changes} ------")
             print(f"==={adx_value:.3f}===, ++++++ {plus_di:.3f}++++++, ------: {minus_di:.3f}----MA")
-            print()
+            print(f"ATR --- {atr:.4f}--- ---")
             # 判断是否卖出或买入
             if tao_balance > 0 and latest_price < min(ma_values.values()) and plus_di < minus_di:
                 # 执行卖出操作
@@ -244,7 +244,7 @@ if __name__ == "__main__":
                  previous_close > max(ma_values.values()) and \
                  ma_values[5] > ma_values[10] and current_macd > 0 and\
                  price_changes[20] > 0 and price_changes[60] > 0 and \
-                 adx_value > 20 and plus_di > minus_di and atr_value > 0.005:
+                 adx_value > 20 and plus_di > minus_di and atr_value > 0.001:
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price - tao_balance,3))  # 计算买入数量
                 trade_type = "BID"
