@@ -12,8 +12,8 @@ client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'FTMUSDT'
 interval = Client.KLINE_INTERVAL_1MINUTE
-FIXED_USDT_AMOUNT = 100
-LEVERAGE = 20
+FIXED_USDT_AMOUNT = 20
+LEVERAGE = 1
 STOP_LOSS_PERCENTAGE = 0.015
 quantity = 0
 
@@ -45,8 +45,8 @@ def get_technical_indicators():
     close_prices = np.array([float(kline[4]) for kline in klines])
 
     adx = talib.ADX(high_prices, low_prices, close_prices, timeperiod=5)[-1]
-    plus_di = talib.PLUS_DI(high_prices, low_prices, close_prices, timeperiod=7)[-1]
-    minus_di = talib.MINUS_DI(high_prices, low_prices, close_prices, timeperiod=7)[-1]
+    plus_di = talib.PLUS_DI(high_prices, low_prices, close_prices, timeperiod=5)[-1]
+    minus_di = talib.MINUS_DI(high_prices, low_prices, close_prices, timeperiod=5)[-1]
     macd = talib.MACD(close_prices, fastperiod=12, slowperiod=26, signalperiod=9)[0][-1]
     return adx, plus_di, minus_di, macd
 
