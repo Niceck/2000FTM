@@ -187,6 +187,27 @@ def calculate_macd(close_prices, fastperiod=12, slowperiod=26, signalperiod=9):
     macd, macdsignal, macdhist = talib.MACD(close_prices, fastperiod, slowperiod, signalperiod)
     return macd, macdsignal, macdhist
 
+# 计算ATR
+def calculate_atr(symbol, interval, atr_period):
+    endpoint = f"{api_base_url}/market/kline"
+    params = {'symbol': symbol, 'interval': interval, 'limit': atr_period + 1}
+    try:
+        response = requests.get(endpoint, params=params).json()
+        if response['code'] == 200:
+            kline_data = response['data']
+            high_prices = np.array([float(kline[3]) for kline in kline_data])
+            low_prices = np.array([float(kline[4]) for kline in kline_data])
+            close_prices = np.array([float(kline[2]) for kline in kline_data])
+            atr = talib.ATR(high_prices, low_prices, close_prices, timeperiod=atr_period)
+            return atr[-1]
+        return None
+    except Exception as e:
+        print(f"计算ATR失败，错误信息为：{str(e)}")
+        return None
+
+# 判断价格是否显著偏离均线
+def is_price_deviation_from_ma(price, ma, threshold=0.01):
+    return abs(price - ma) / ma > threshold
 
 if __name__ == "__main__":
     while True:
@@ -196,6 +217,8 @@ if __name__ == "__main__":
             previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10])
             adx_value, plus_di, minus_di = calculate_adx(symbol, kline_interval, 7)  # 假设使用14个周期的ADX
             price_changes = get_price_change(symbol, kline_interval, [20, 60])
+            # 计算ATR
+            atr_value = calculate_atr(symbol, kline_interval, 7)
             # 获取历史收盘价数据
             historical_close_prices = get_historical_close_prices(symbol, kline_interval, 100)  # 例如最近100根K线的收盘价
             if not historical_close_prices:
@@ -221,7 +244,7 @@ if __name__ == "__main__":
                  previous_close > max(ma_values.values()) and \
                  ma_values[5] > ma_values[10] and current_macd > 0 and\
                  price_changes[20] > 0 and price_changes[60] > 0 and \
-                 adx_value > 20 and plus_di > minus_di:
+                 adx_value > 20 and plus_di > minus_di and atr_value > 0.005:
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price - tao_balance,3))  # 计算买入数量
                 trade_type = "BID"
