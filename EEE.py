@@ -11,7 +11,7 @@ api_secret = '7JJ079zKEEeO6wZnSHhxDRkx81CG0AFvl7450PixmSl9UP0F3yoMlupCRJGtz5KK'
 client = Client(api_key=api_key, api_secret=api_secret)
 # 交易对和K线周期
 symbol = 'FTMUSDT'
-interval = Client.KLINE_INTERVAL_5MINUTE
+interval = Client.KLINE_INTERVAL_1MINUTE
 FIXED_USDT_AMOUNT = 20
 LEVERAGE = 1
 STOP_LOSS_PERCENTAGE = 0.015
