@@ -207,7 +207,7 @@ def get_atr(period=7):
     return atr
 
 # 定义ATR阈值
-ATR_THRESHOLD = 0.0005 # 示例值，您需要根据实际情况调整
+ATR_THRESHOLD = 0.001 # 示例值，您需要根据实际情况调整
 # 主逻辑代码
 while True:
     try:
