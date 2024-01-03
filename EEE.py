@@ -219,9 +219,11 @@ while True:
         latest_price = get_latest_market_price(symbol)
         prev_close_price = get_previous_close_price()
         print()
-        price_changes = get_price_change(symbol, interval, [5, 10])
+        price_changes = get_price_change(symbol, interval, [5, 10,20,60])
         ma5 = get_ma(5)
         ma10 = get_ma(10)
+        ma20 = get_ma(20)
+        ma60 = get_ma(60)
         # 获取ATR值
         atr = get_atr(5)
         print(f"ATR======:{atr:.4f}")
@@ -232,14 +234,14 @@ while True:
 
         # 检查买入条件
         if not has_position(symbol) and all([
-            prev_close_price > ma5, prev_close_price > ma10, atr > ATR_THRESHOLD,
-            ma5 > ma10, adx > 20, plus_di > minus_di,  price_changes[5] > 0, price_changes[10] > 0]):
+            prev_close_price > ma5, prev_close_price > ma10, prev_close_price > ma20, prev_close_price > ma60, atr > ATR_THRESHOLD,
+            ma5 > ma10, ma10 > ma20, adx > 20, plus_di > minus_di, price_changes[5] > 0, price_changes[10] > 0]):
             open_position(Client.SIDE_BUY)
 
         # 检查卖出条件
         elif not has_position(symbol) and all([
-            prev_close_price < ma5, prev_close_price < ma10, atr > ATR_THRESHOLD,
-            ma5 < ma10, adx > 20, plus_di < minus_di, price_changes[5] < 0, price_changes[10] < 0]):
+            prev_close_price < ma5, prev_close_price < ma10, prev_close_price < ma20, prev_close_price < ma60, atr > ATR_THRESHOLD,
+            ma5 < ma10, ma10 < ma20, adx > 20, plus_di < minus_di, price_changes[5] < 0, price_changes[10] < 0]):
             open_position(Client.SIDE_SELL)
 
         position_info = has_position(symbol)
