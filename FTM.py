@@ -31,10 +31,9 @@ def get_previous_close_price():
     klines = client.futures_klines(symbol=symbol, interval=interval, limit=2)
     return float(klines[-2][4]) if len(klines) > 1 else 0
 
-# 获取均线值
-def get_ma(period):
-    klines = client.futures_klines(symbol=symbol, interval=interval, limit=period)
-    close_prices = np.array([float(kline[4]) for kline in klines])
+def get_ma(period, limit=0):
+    klines = client.futures_klines(symbol=symbol, interval=interval, limit=period + limit)
+    close_prices = np.array([float(kline[4]) for kline in klines[:-limit] or klines])
     return talib.SMA(close_prices, timeperiod=period)[-1]
 
 # 获取技术指标：ADX, DI+, DI-, MACD
@@ -207,58 +206,79 @@ def get_atr(period=7):
     return atr
 
 # 定义ATR阈值
-ATR_THRESHOLD = 0.001 # 示例值，您需要根据实际情况调整
+ATR_THRESHOLD = 0.005 # 示例值，您需要根据实际情况调整
 # 主逻辑代码
 while True:
     try:
-        # 获取账户余额信息
+        # 获取账户余额信息和市场价格
         balance = get_account_balance()
-        print(f"$$$$$$$$--{balance:.2f}--$$$$$$$$")
-
-        # 获取市场价格和均线值
         latest_price = get_latest_market_price(symbol)
-        prev_close_price = get_previous_close_price()
-        print()
-        price_changes = get_price_change(symbol, interval, [5, 10,20,60])
-        ma5 = get_ma(5)
-        ma10 = get_ma(10)
-        ma20 = get_ma(20)
-        ma60 = get_ma(60)
-        # 获取ATR值
-        atr = get_atr(5)
-        print(f"ATR======:{atr:.4f}")
+        print(f"$$$$$$$$--{balance:.2f}--$$$$$$$$")
+        print(f"当前市价：{latest_price}")
 
-        # 获取技术指标
+        # 获取前一根K线的收盘价和均线值
+        prev_close_price = get_previous_close_price()
+        prev_ma5 = get_ma(5, 1)  # 前一根K线的MA5
+        prev_ma10 = get_ma(10, 1)  # 前一根K线的MA10
+        prev_ma20 = get_ma(20, 1)  # 前一根K线的MA20
+        prev_ma60 = get_ma(60, 1)  # 前一根K线的MA60
+
+        # 获取当前MA值
+        current_ma5 = get_ma(5)  # 当前MA5
+        current_ma10 = get_ma(10)  # 当前MA10
+        current_ma20 = get_ma(20)  # 当前MA20
+        current_ma60 = get_ma(60)  # 当前MA60
+
+        # 获取价格变化
+        price_changes = get_price_change(symbol, interval, [5,10,20, 60])
+        
+        # 获取ATR和技术指标
+        atr = get_atr(5)
         adx, plus_di, minus_di, macd = get_technical_indicators()
-        print(f"-FTM----FTM---FTM---{adx}, +DI: {plus_di}, -DI: {minus_di}, MACD: {macd}")
+        print(f"ATR======:{atr:.4f}")
 
         # 检查买入条件
         if not has_position(symbol) and all([
-            prev_close_price > ma5, prev_close_price > ma10, prev_close_price > ma20, prev_close_price > ma60, atr > ATR_THRESHOLD,
-            ma5 > ma10, ma10 > ma20, adx > 20, plus_di > minus_di, price_changes[] > 0, price_changes[10] > 0]):
+            prev_close_price > prev_ma5, prev_close_price > prev_ma10, prev_close_price > prev_ma20, prev_close_price > prev_ma60, 
+            latest_price > current_ma5, latest_price > current_ma10, latest_price > current_ma20, latest_price > current_ma60,
+            current_ma5 > current_ma10, current_ma10 > current_ma20, price_changes > 0 ,atr > ATR_THRESHOLD, macd > 0,
+            atr > ATR_THRESHOLD, adx > 20, plus_di > minus_di]):
             open_position(Client.SIDE_BUY)
 
         # 检查卖出条件
         elif not has_position(symbol) and all([
-            prev_close_price < ma5, prev_close_price < ma10, prev_close_price < ma20, prev_close_price < ma60, atr > ATR_THRESHOLD,
-            ma5 < ma10, ma10 < ma20, adx > 20, plus_di < minus_di, price_changes[5] < 0, price_changes[10] < 0]):
+            prev_close_price < prev_ma5, prev_close_price < prev_ma10, prev_close_price < prev_ma20, prev_close_price < prev_ma60, 
+            latest_price < current_ma5, latest_price < current_ma10, latest_price < current_ma20, latest_price < current_ma60,
+            current_ma5 < current_ma10, current_ma10 < current_ma20, price_changes < 0 ,atr > ATR_THRESHOLD, macd < 0,
+            atr > ATR_THRESHOLD, adx > 20, plus_di < minus_di]):
             open_position(Client.SIDE_SELL)
 
+        # 检查平仓条件
         position_info = has_position(symbol)
         if position_info:
             position_side = position_info['positionSide']
-            print(f"{position_side}")
-            if position_side == 'LONG' and all(
-                    [latest_price < ma5, latest_price < ma10, prev_close_price < ma5, prev_close_price < ma10, plus_di < minus_di]):
-                close_position(symbol, position_side)
-                cancel_all_orders(symbol)
-            elif position_side == 'SHORT' and all(
-                    [latest_price > ma5, latest_price > ma10, prev_close_price > ma5, prev_close_price > ma10, plus_di > minus_di]):
-                close_position(symbol, position_side)
-                cancel_all_orders(symbol)
+            print(f"当前持仓方向：{position_side}")
+
+            # 对于多头持仓
+            if position_side == 'LONG':
+                if all([
+                    latest_price < current_ma5, latest_price < current_ma10, 
+                    prev_close_price < prev_ma5, prev_close_price < prev_ma10,
+                    plus_di < minus_di]):
+                    close_position(symbol, position_side)
+                    cancel_all_orders(symbol)
+
+            # 对于空头持仓
+            elif position_side == 'SHORT':
+                if all([
+                    latest_price > current_ma5, latest_price > current_ma10, 
+                    prev_close_price > prev_ma5, prev_close_price > prev_ma10,
+                    plus_di > minus_di]):
+                    close_position(symbol, position_side)
+                    cancel_all_orders(symbol)
 
         # 设置循环延时，例如每5分钟检查一次
-        time.sleep(30)
+        time.sleep(20)
 
     except Exception as e:
         print("程序出现异常：", e)
