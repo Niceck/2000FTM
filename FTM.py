@@ -213,8 +213,7 @@ while True:
         # 获取账户余额信息和市场价格
         balance = get_account_balance()
         latest_price = get_latest_market_price(symbol)
-        print(f"$$$$$$$$--{balance:.2f}--$$$$$$$$")
-        print(f"当前市价：{latest_price}")
+        print(f"FTM-------{balance:.2f}--------")
 
         # 获取前一根K线的收盘价和均线值
         prev_close_price = get_previous_close_price()
@@ -231,11 +230,12 @@ while True:
 
         # 获取价格变化
         price_changes = get_price_change(symbol, interval, [5,10,20, 60])
+        print(f"FTM----{price_changes:.4f}")
         
         # 获取ATR和技术指标
         atr = get_atr(5)
         adx, plus_di, minus_di, macd = get_technical_indicators()
-        print(f"ATR======:{atr:.4f}")
+        print(f"atr---:{atr:.4f},---adx---{adx:.4f},{plus_di:.4f},{minus_di:.4f}")
 
         # 检查买入条件
         if not has_position(symbol) and all([
@@ -259,7 +259,7 @@ while True:
         position_info = has_position(symbol)
         if position_info:
             position_side = position_info['positionSide']
-            print(f"当前持仓方向：{position_side}")
+            print(f"FTM-----{position_side}")
 
             # 对于多头持仓
             if position_side == 'LONG':
