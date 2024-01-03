@@ -241,7 +241,8 @@ while True:
         if not has_position(symbol) and all([
             prev_close_price > prev_ma5, prev_close_price > prev_ma10, prev_close_price > prev_ma20, prev_close_price > prev_ma60, 
             latest_price > current_ma5, latest_price > current_ma10, latest_price > current_ma20, latest_price > current_ma60,
-            current_ma5 > current_ma10, current_ma10 > current_ma20, price_changes > 0 ,atr > ATR_THRESHOLD, macd > 0,
+            current_ma5 > current_ma10, current_ma10 > current_ma20, atr > ATR_THRESHOLD, macd > 0,
+            price_changes[5] > 0, price_changes[10] > 0, price_changes[20] > 0, price_changes[20] > 60,
             atr > ATR_THRESHOLD, adx > 20, plus_di > minus_di]):
             open_position(Client.SIDE_BUY)
 
@@ -249,7 +250,8 @@ while True:
         elif not has_position(symbol) and all([
             prev_close_price < prev_ma5, prev_close_price < prev_ma10, prev_close_price < prev_ma20, prev_close_price < prev_ma60, 
             latest_price < current_ma5, latest_price < current_ma10, latest_price < current_ma20, latest_price < current_ma60,
-            current_ma5 < current_ma10, current_ma10 < current_ma20, price_changes < 0 ,atr > ATR_THRESHOLD, macd < 0,
+            current_ma5 < current_ma10, current_ma10 < current_ma20, atr > ATR_THRESHOLD, macd < 0,
+            price_changes[5] <  0, price_changes[10] <  0, price_changes[20] < 0, price_changes[20] < 60,
             atr > ATR_THRESHOLD, adx > 20, plus_di < minus_di]):
             open_position(Client.SIDE_SELL)
 
