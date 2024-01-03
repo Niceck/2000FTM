@@ -198,7 +198,7 @@ def open_position(side):
         return False
 
 # 定义ATR计算函数
-def get_atr(period=14):
+def get_atr(period=7):
     klines = client.futures_klines(symbol=symbol, interval=interval, limit=period+1)
     high_prices = np.array([float(kline[2]) for kline in klines])
     low_prices = np.array([float(kline[3]) for kline in klines])
@@ -207,7 +207,7 @@ def get_atr(period=14):
     return atr
 
 # 定义ATR阈值
-ATR_THRESHOLD = 0.001 # 示例值，您需要根据实际情况调整
+ATR_THRESHOLD = 0.0005 # 示例值，您需要根据实际情况调整
 # 主逻辑代码
 while True:
     try:
