@@ -17,6 +17,8 @@ FIXED_USDT_AMOUNT = 50
 LEVERAGE = 20
 STOP_LOSS_PERCENTAGE = 0.015
 quantity = 0
+# 定义ATR阈值
+ATR_THRESHOLD = 0.3  # 示例值，您需要根据实际情况调整
 
 
 # 获取最新市场价格
@@ -218,10 +220,6 @@ def get_atr(period=7):
     close_prices = np.array([float(kline[4]) for kline in klines])
     atr = talib.ATR(high_prices, low_prices, close_prices, timeperiod=period)[-1]
     return atr
-
-
-# 定义ATR阈值
-ATR_THRESHOLD = 0.001  # 示例值，您需要根据实际情况调整
 
 
 # 主逻辑代码
