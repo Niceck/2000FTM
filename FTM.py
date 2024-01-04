@@ -257,7 +257,9 @@ while True:
         atr = get_atr(5)
         adx, plus_di, minus_di, macd = get_technical_indicators()
         print()
-        print(f"FTM----atr---:{atr:.4f},---adx---{adx:.4f},---{plus_di:.4f},---{minus_di:.4f}")
+        print(f"FTM----atr---:{atr:.4f},-------adx-----{adx:.4f},---------{plus_di:.4f},---{minus_di:.4f}")
+        print()
+        print()
         print()
 
         # 检查买入条件
@@ -268,7 +270,7 @@ while True:
             latest_price > current_ma60,
             current_ma5 > current_ma10, current_ma10 > current_ma20, macd > 0, atr > ATR_THRESHOLD,
             price_changes[5] > 0, price_changes[10] > 0, price_changes[20] > 0, price_changes[20] > 0,
-            adx > 20, plus_di > minus_di]):
+            adx > 20]):
             open_position(Client.SIDE_BUY)
 
         # 检查卖出条件
@@ -279,7 +281,7 @@ while True:
             latest_price < current_ma60,
             current_ma5 < current_ma10, current_ma10 < current_ma20, macd < 0, atr > ATR_THRESHOLD,
             price_changes[5] < 0, price_changes[10] < 0, price_changes[20] < 0, price_changes[20] < 0,
-            adx > 20, plus_di < minus_di]):
+            adx > 20]):
             open_position(Client.SIDE_SELL)
 
         # 检查平仓条件
@@ -292,8 +294,7 @@ while True:
             if position_side == 'LONG':
                 if all([
                     latest_price < current_ma5, latest_price < current_ma10,
-                    prev_close_price < prev_ma5, prev_close_price < prev_ma10,
-                    plus_di < minus_di]):
+                    prev_close_price < prev_ma5, prev_close_price < prev_ma10]):
                     close_position(symbol, position_side)
                     cancel_all_orders(symbol)
 
@@ -301,8 +302,7 @@ while True:
             elif position_side == 'SHORT':
                 if all([
                     latest_price > current_ma5, latest_price > current_ma10,
-                    prev_close_price > prev_ma5, prev_close_price > prev_ma10,
-                    plus_di > minus_di]):
+                    prev_close_price > prev_ma5, prev_close_price > prev_ma10]):
                     close_position(symbol, position_side)
                     cancel_all_orders(symbol)
 
