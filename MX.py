@@ -242,11 +242,11 @@ if __name__ == "__main__":
                  ma_values[5] > ma_values[10] and \
                  price_changes[20] > 0 and price_changes[60] > 0 and \
                  adx_value > 20 and plus_di > minus_di and atr_value > 0.001:
-                 print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 # 执行买入操作
-                quantity = str(round(amount_in_usdt / latest_price - tao_balance,3))  # 计算买入数量
+                quantity = str(round(amount_in_usdt / latest_price - tao_balance, 3))  # 计算买入数量
                 trade_type = "BID"
-                print()     
+                print()
                 print(f"MX+++++++++MX+++++++++MX {quantity}")
                 print()
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
@@ -266,3 +266,4 @@ if __name__ == "__main__":
             time.sleep(60)
         except KeyboardInterrupt:
             print("程序已手动中断")
+
