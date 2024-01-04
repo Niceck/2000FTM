@@ -214,7 +214,7 @@ if __name__ == "__main__":
             latest_price = get_latest_market_price(symbol)
             previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10])
             adx_value, plus_di, minus_di = calculate_adx(symbol, kline_interval, 7)  # 假设使用14个周期的ADX
-            price_changes = get_price_change(symbol, kline_interval, [20, 60])
+            price_changes = get_price_change(symbol, kline_interval, [5,10,20, 60])
             # 计算ATR
             atr_value = calculate_atr(symbol, kline_interval, 7)
             # 获取历史收盘价数据
@@ -230,7 +230,7 @@ if __name__ == "__main__":
             print(f"==={adx_value:.3f}===, ++++++ {plus_di:.3f}++++++, ------: {minus_di:.3f}----MA")
             print(f"ATR --- {atr_value:.4f}--- ---")
             # 判断是否卖出或买入
-            if tao_balance > 0 and latest_price < min(ma_values.values()) and plus_di < minus_di:
+            if tao_balance > 0 and latest_price < min(ma_values.values()):
                 quantity = str(tao_balance)  # 卖出所有TAO余额
                 trade_type = "ASK"
                 print(f"MX--------MX---------MX {quantity}")
@@ -238,11 +238,11 @@ if __name__ == "__main__":
                 order_response = place_order(symbol, str(latest_price), quantity, trade_type)
 
             elif tao_balance < float(round(5 / latest_price, 3)) and \
-                 previous_close > max(ma_values.values()) and \
-                 ma_values[5] > ma_values[10] and \
+                 previous_close > max(ma_values.values()) and current_macd > 0 and \
+                 ma_values[5] > ma_values[10] and ma_values[10] > ma_values[20] and \
                  price_changes[20] > 0 and price_changes[60] > 0 and \
+                 price_changes[5] > 0 price_changes[10] > 0 and \
                  adx_value > 20 and plus_di > minus_di and atr_value > 0.005:
-                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 # 执行买入操作
                 quantity = str(round(amount_in_usdt / latest_price - tao_balance, 3))  # 计算买入数量
                 trade_type = "BID"
@@ -257,7 +257,7 @@ if __name__ == "__main__":
                 order_response = None
 
             # 设置循环延时，例如每5分钟检查一次
-            time.sleep(15)
+            time.sleep(10)
 
         except Exception as e:
             import traceback
