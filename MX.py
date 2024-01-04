@@ -212,7 +212,7 @@ if __name__ == "__main__":
         try:
             tao_balance = get_account_balance_info()
             latest_price = get_latest_market_price(symbol)
-            previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10])
+            previous_close, ma_values = get_previous_kline_and_ma(symbol, kline_interval, [5, 10,20,60])
             adx_value, plus_di, minus_di = calculate_adx(symbol, kline_interval, 7)  # 假设使用14个周期的ADX
             price_changes = get_price_change(symbol, kline_interval, [5,10,20, 60])
             # 计算ATR
