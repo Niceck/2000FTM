@@ -222,6 +222,8 @@ def get_atr(period=7):
 
 # 定义ATR阈值
 ATR_THRESHOLD = 0.005  # 示例值，您需要根据实际情况调整
+
+
 # 主逻辑代码
 while True:
     try:
@@ -266,7 +268,7 @@ while True:
             latest_price > current_ma60,
             current_ma5 > current_ma10, current_ma10 > current_ma20, atr > ATR_THRESHOLD, macd > 0,
             price_changes[5] > 0, price_changes[10] > 0, price_changes[20] > 0, price_changes[20] > 60,
-            atr > ATR_THRESHOLD, adx > 20, plus_di > minus_di]):
+            adx > 20, plus_di > minus_di]):
             open_position(Client.SIDE_BUY)
 
         # 检查卖出条件
@@ -277,7 +279,7 @@ while True:
             latest_price < current_ma60,
             current_ma5 < current_ma10, current_ma10 < current_ma20, atr > ATR_THRESHOLD, macd < 0,
             price_changes[5] < 0, price_changes[10] < 0, price_changes[20] < 0, price_changes[20] < 60,
-            atr > ATR_THRESHOLD, adx > 20, plus_di < minus_di]):
+            adx > 20, plus_di < minus_di]):
             open_position(Client.SIDE_SELL)
 
         # 检查平仓条件
