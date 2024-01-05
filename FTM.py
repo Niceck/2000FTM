@@ -14,8 +14,8 @@ client = Client(api_key=api_key, api_secret=api_secret)
 symbol = 'ORDIUSDT'
 interval = Client.KLINE_INTERVAL_1MINUTE
 FIXED_USDT_AMOUNT = 50
-LEVERAGE = 20
-STOP_LOSS_PERCENTAGE = 0.015
+LEVERAGE = 50
+STOP_LOSS_PERCENTAGE = 0.2 / LEVERAGE
 quantity = 0
 # 定义ATR阈值
 ATR_THRESHOLD = 0.25  # 示例值，您需要根据实际情况调整
