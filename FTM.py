@@ -18,7 +18,7 @@ LEVERAGE = 20
 STOP_LOSS_PERCENTAGE = 0.015
 quantity = 0
 # 定义ATR阈值
-ATR_THRESHOLD = 0.3  # 示例值，您需要根据实际情况调整
+ATR_THRESHOLD = 0.25  # 示例值，您需要根据实际情况调整
 
 
 # 获取最新市场价格
@@ -261,7 +261,7 @@ while True:
         if not has_position(symbol) and all([
             prev_close_price > prev_ma7, prev_close_price > prev_ma25, prev_close_price > prev_ma99,
             latest_price > current_ma7, latest_price > current_ma25, latest_price > current_ma99,
-            current_ma7 > current_ma25, macd > 0,
+            current_ma7 > current_ma25, macd > 0, atr > ATR_THRESHOLD,
             price_changes[7] > 0, price_changes[25] > 0, price_changes[99] > 0,
             adx > 20]):
             open_position(Client.SIDE_BUY)
@@ -270,7 +270,7 @@ while True:
         elif not has_position(symbol) and all([
             prev_close_price < prev_ma7, prev_close_price < prev_ma25, prev_close_price < prev_ma99,
             latest_price < current_ma7, latest_price < current_ma25, latest_price < current_ma99,
-            current_ma7 < current_ma25,  macd < 0, 
+            current_ma7 < current_ma25,  macd < 0, atr > ATR_THRESHOLD,
             price_changes[7] < 0, price_changes[25] < 0, price_changes[99] < 0, 
             adx > 20]):
             open_position(Client.SIDE_SELL)
