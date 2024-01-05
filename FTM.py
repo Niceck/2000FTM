@@ -236,23 +236,20 @@ while True:
 
         # 获取前一根K线的收盘价和均线值
         prev_close_price = get_previous_close_price()
-        prev_ma5 = get_ma(5, 1)  # 前一根K线的MA5
-        prev_ma10 = get_ma(10, 1)  # 前一根K线的MA10
-        prev_ma20 = get_ma(20, 1)  # 前一根K线的MA20
-        prev_ma60 = get_ma(60, 1)  # 前一根K线的MA60
+        prev_ma5 = get_ma(7, 1)  # 前一根K线的MA5
+        prev_ma10 = get_ma(25, 1)  # 前一根K线的MA10
+        prev_ma20 = get_ma(99, 1)  # 前一根K线的MA20
 
         # 获取当前MA值
-        current_ma5 = get_ma(5)  # 当前MA5
-        current_ma10 = get_ma(10)  # 当前MA10
-        current_ma20 = get_ma(20)  # 当前MA20
-        current_ma60 = get_ma(60)  # 当前MA60
-
+        current_ma5 = get_ma(7)  # 当前MA5
+        current_ma10 = get_ma(25)  # 当前MA10
+        current_ma20 = get_ma(99)  # 当前MA20
         # 获取价格变化
-        price_changes = get_price_change(symbol, interval, [5, 10, 20, 60])
+        price_changes = get_price_change(symbol, interval, [7, 25, 99])
         print(f"{price_changes}")
 
         # 获取ATR和技术指标
-        atr = get_atr(5)
+        atr = get_atr(7)
         adx, plus_di, minus_di, macd = get_technical_indicators()
         print()
         print(f"FTM----atr---:{atr:.4f},-------adx-----{adx:.4f},---------{plus_di:.4f},---{minus_di:.4f}")
@@ -262,23 +259,19 @@ while True:
 
         # 检查买入条件
         if not has_position(symbol) and all([
-            prev_close_price > prev_ma5, prev_close_price > prev_ma10, prev_close_price > prev_ma20,
-            prev_close_price > prev_ma60,
-            latest_price > current_ma5, latest_price > current_ma10, latest_price > current_ma20,
-            latest_price > current_ma60,
-            current_ma5 > current_ma10, current_ma10 > current_ma20, macd > 0, atr > ATR_THRESHOLD,
-            price_changes[5] > 0, price_changes[10] > 0, price_changes[20] > 0, price_changes[20] > 0,
+            prev_close_price > prev_ma7, prev_close_price > prev_ma25, prev_close_price > prev_ma99,
+            latest_price > current_ma7, latest_price > current_ma25, latest_price > current_ma99,
+            current_ma7 > current_ma25, macd > 0,
+            price_changes[7] > 0, price_changes[25] > 0, price_changes[99] > 0,
             adx > 20]):
             open_position(Client.SIDE_BUY)
 
         # 检查卖出条件
         elif not has_position(symbol) and all([
-            prev_close_price < prev_ma5, prev_close_price < prev_ma10, prev_close_price < prev_ma20,
-            prev_close_price < prev_ma60,
-            latest_price < current_ma5, latest_price < current_ma10, latest_price < current_ma20,
-            latest_price < current_ma60,
-            current_ma5 < current_ma10, current_ma10 < current_ma20, macd < 0, atr > ATR_THRESHOLD,
-            price_changes[5] < 0, price_changes[10] < 0, price_changes[20] < 0, price_changes[20] < 0,
+            prev_close_price < prev_ma7, prev_close_price < prev_ma25, prev_close_price < prev_ma99,
+            latest_price < current_ma7, latest_price < current_ma25, latest_price < current_ma99,
+            current_ma7 < current_ma25,  macd < 0, 
+            price_changes[7] < 0, price_changes[25] < 0, price_changes[99] < 0, 
             adx > 20]):
             open_position(Client.SIDE_SELL)
 
@@ -291,16 +284,16 @@ while True:
             # 对于多头持仓
             if position_side == 'LONG':
                 if all([
-                    latest_price < current_ma5, latest_price < current_ma10,
-                    prev_close_price < prev_ma5, prev_close_price < prev_ma10]):
+                    latest_price < current_ma7, 
+                    prev_close_price < prev_ma7]):
                     close_position(symbol, position_side)
                     cancel_all_orders(symbol)
 
             # 对于空头持仓
             elif position_side == 'SHORT':
                 if all([
-                    latest_price > current_ma5, latest_price > current_ma10,
-                    prev_close_price > prev_ma5, prev_close_price > prev_ma10]):
+                    latest_price > current_ma7, 
+                    prev_close_price > prev_ma7]):
                     close_position(symbol, position_side)
                     cancel_all_orders(symbol)
 
