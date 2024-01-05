@@ -270,7 +270,7 @@ while True:
         elif not has_position(symbol) and all([
             prev_close_price < prev_ma7, prev_close_price < prev_ma25, prev_close_price < prev_ma99,
             latest_price < current_ma7, latest_price < current_ma25, latest_price < current_ma99,
-            current_ma7 < current_ma25, current_ma25 < current_ma99,macd < 0, 
+            current_ma7 < current_ma25, current_ma25 < current_ma99, macd < 0, 
             price_changes[7] < 0, price_changes[25] < 0, price_changes[99] < 0, 
             adx > 20]):
             open_position(Client.SIDE_SELL)
