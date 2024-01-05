@@ -236,14 +236,14 @@ while True:
 
         # 获取前一根K线的收盘价和均线值
         prev_close_price = get_previous_close_price()
-        prev_ma5 = get_ma(7, 1)  # 前一根K线的MA5
-        prev_ma10 = get_ma(25, 1)  # 前一根K线的MA10
-        prev_ma20 = get_ma(99, 1)  # 前一根K线的MA20
+        prev_ma7 = get_ma(7, 1)  # 前一根K线的MA5
+        prev_ma25 = get_ma(25, 1)  # 前一根K线的MA10
+        prev_ma99 = get_ma(99, 1)  # 前一根K线的MA20
 
         # 获取当前MA值
-        current_ma5 = get_ma(7)  # 当前MA5
-        current_ma10 = get_ma(25)  # 当前MA10
-        current_ma20 = get_ma(99)  # 当前MA20
+        current_ma7 = get_ma(7)  # 当前MA5
+        current_ma25 = get_ma(25)  # 当前MA10
+        current_ma99 = get_ma(99)  # 当前MA20
         # 获取价格变化
         price_changes = get_price_change(symbol, interval, [7, 25, 99])
         print(f"{price_changes}")
