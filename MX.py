@@ -230,7 +230,7 @@ if __name__ == "__main__":
             print(f"==={adx_value:.3f}===, ++++++ {plus_di:.3f}++++++, ------: {minus_di:.3f}----MA")
             print(f"ATR --- {atr_value:.4f}--- ---")
             # 判断是否卖出或买入
-            if tao_balance > 0 and latest_price < ma_values[5] and latest_price < ma_values[10] and
+            if tao_balance > 0 and latest_price < ma_values[5] and latest_price < ma_values[10] and \
                previous_close < max(ma_values.values()):
                 quantity = str(tao_balance)  # 卖出所有TAO余额
                 trade_type = "ASK"
